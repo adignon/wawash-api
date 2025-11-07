@@ -1,0 +1,269 @@
+@layout.admin({ title: 'Add Address', pageTitle: 'Add Store Address' })
+
+@slot('topbarActions')
+  <a href="{{ route('admin.merchants.edit', { id: merchant.id }) }}" class="btn btn-secondary">
+    <span>←</span>
+    <span>Back to Merchant</span>
+  </a>
+@end
+
+@slot('main')
+  <div class="card" style="max-width: 800px;">
+    <div class="card-header">
+      <h2 class="card-title">Add Store Address for {{ merchant.name }}</h2>
+    </div>
+
+    <form action="{{ route('admin.merchant.address.store', { merchantId: merchant.id }) }}" method="POST">
+      {{ csrfField() }}
+      {{-- Location Information --}}
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb;">
+          📍 Location Information
+        </h3>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 16px;">
+          <div class="form-group">
+            <label for="quartier" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+              Quartier <span style="color: #ef4444;">*</span>
+            </label>
+            <input
+              type="text"
+              id="quartier"
+              name="quartier"
+              value="{{ old('quartier') || '' }}"
+              required
+              placeholder="e.g., Akpakpa"
+              style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;"
+              onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+              onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+            >
+            @if(errors?.quartier)
+              <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.quartier }}</span>
+            @end
+          </div>
+
+          <div class="form-group">
+            <label for="commune" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+              Commune <span style="color: #ef4444;">*</span>
+            </label>
+            <input
+              type="text"
+              id="commune"
+              name="commune"
+              value="{{ old('commune') || '' }}"
+              required
+              placeholder="e.g., Cotonou"
+              style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;"
+              onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+              onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+            >
+            @if(errors?.commune)
+              <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.commune }}</span>
+            @end
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 16px;">
+          <div class="form-group">
+            <label for="arrondissement" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+              Arrondissement <span style="color: #ef4444;">*</span>
+            </label>
+            <input
+              type="text"
+              id="arrondissement"
+              name="arrondissement"
+              value="{{ old('arrondissement') || '' }}"
+              required
+              placeholder="e.g., 1er Arrondissement"
+              style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;"
+              onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+              onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+            >
+            @if(errors?.arrondissement)
+              <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.arrondissement }}</span>
+            @end
+          </div>
+
+          <div class="form-group">
+            <label for="departement" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+              Département <span style="color: #ef4444;">*</span>
+            </label>
+            <input
+              type="text"
+              id="departement"
+              name="departement"
+              value="{{ old('departement') || '' }}"
+              required
+              placeholder="e.g., Littoral"
+              style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;"
+              onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+              onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+            >
+            @if(errors?.departement)
+              <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.departement }}</span>
+            @end
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="country" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+            Country <span style="color: #ef4444;">*</span>
+          </label>
+          <input
+            type="text"
+            id="country"
+            name="country"
+            value="{{ old('country') || 'Benin' }}"
+            required
+            placeholder="e.g., Benin"
+            style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;"
+            onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+            onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+          >
+          @if(errors?.country)
+            <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.country }}</span>
+          @end
+        </div>
+
+        <div class="form-group">
+          <label for="description" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+            Description <span style="color: #ef4444;">*</span>
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            required
+            rows="3"
+            placeholder="Detailed address description (e.g., Near the market, blue building)"
+            style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s; resize: vertical;"
+            onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+            onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+          >{{ old('description') || '' }}</textarea>
+          @if(errors?.description)
+            <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.description }}</span>
+          @end
+        </div>
+      </div>
+
+      {{-- Contact Information --}}
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb;">
+          📞 Contact Information
+        </h3>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+          <div class="form-group">
+            <label for="contactFullname" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+              Contact Name <span style="color: #ef4444;">*</span>
+            </label>
+            <input
+              type="text"
+              id="contactFullname"
+              name="contactFullname"
+              value="{{ old('contactFullname') || '' }}"
+              required
+              placeholder="Full name of contact person"
+              style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;"
+              onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+              onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+            >
+            @if(errors?.contactFullname)
+              <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.contactFullname }}</span>
+            @end
+          </div>
+
+          <div class="form-group">
+            <label for="contactPhone" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+              Contact Phone <span style="color: #ef4444;">*</span>
+            </label>
+            <input
+              type="tel"
+              id="contactPhone"
+              name="contactPhone"
+              value="{{ old('contactPhone') || '' }}"
+              required
+              placeholder="+22901XXXXXXXX"
+              style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s; font-family: monospace;"
+              onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+              onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+            >
+            @if(errors?.contactPhone)
+              <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.contactPhone }}</span>
+            @end
+          </div>
+        </div>
+      </div>
+
+      {{-- Coordinates --}}
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb;">
+          🗺️ Coordinates
+        </h3>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+          <div class="form-group">
+            <label for="latitude" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+              Latitude <span style="color: #ef4444;">*</span>
+            </label>
+            <input
+              type="text"
+              id="latitude"
+              name="latitude"
+              value="{{ old('latitude') || '' }}"
+              required
+              placeholder="e.g., 6.3654"
+              style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s; font-family: monospace;"
+              onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+              onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+            >
+            @if(errors?.latitude)
+              <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.latitude }}</span>
+            @end
+          </div>
+
+          <div class="form-group">
+            <label for="longitude" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+              Longitude <span style="color: #ef4444;">*</span>
+            </label>
+            <input
+              type="text"
+              id="longitude"
+              name="longitude"
+              value="{{ old('longitude') || '' }}"
+              required
+              placeholder="e.g., 2.4183"
+              style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s; font-family: monospace;"
+              onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+              onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+            >
+            @if(errors?.longitude)
+              <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.longitude }}</span>
+            @end
+          </div>
+        </div>
+      </div>
+
+      {{-- Info Note --}}
+      <div style="background: #dbeafe; border-left: 4px solid #3b82f6; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+        <div style="display: flex; gap: 12px;">
+          <div style="font-size: 20px;">ℹ️</div>
+          <div>
+            <div style="font-weight: 600; color: #1e40af; margin-bottom: 4px;">Location Tips</div>
+            <div style="font-size: 13px; color: #1e3a8a;">
+              • Ensure the address is complete and accurate<br>
+              • GPS coordinates help customers find the exact location<br>
+              • You can get coordinates from Google Maps by right-clicking on a location
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- Form Actions --}}
+      <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+        <a href="{{ route('admin.merchants.edit', { id: merchant.id }) }}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">Create Address</button>
+      </div>
+    </form>
+  </div>
+@end
+@end

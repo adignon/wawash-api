@@ -1,0 +1,129 @@
+@layout.front({
+  title: 'À propos de nous - WaWash & MindXera',
+  showNav: true,
+  showDownloadButton: true
+})
+  @slot('main')
+    <main class="flex-grow">
+      <section class="flex justify-center py-16 sm:py-24 lg:py-32 bg-background-light dark:bg-background-dark">
+        <div class="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="flex flex-col gap-6 text-center lg:text-left">
+              <p class="text-primary font-bold text-lg">MindXera présente WaWash</p>
+              <h1
+                class="text-text-light dark:text-text-dark text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tighter">
+                Innover pour simplifier votre quotidien.</h1>
+              <h2
+                class="text-text-light dark:text-text-dark text-lg md:text-xl font-normal leading-normal max-w-xl mx-auto lg:mx-0">
+                Nous sommes MindXera, l'entreprise derrière WaWash. Notre passion est de créer des solutions
+                technologiques qui répondent aux défis locaux et améliorent la vie de tous les jours.</h2>
+            </div>
+            <div class="w-full aspect-square bg-center bg-no-repeat bg-cover rounded-xl"
+              data-alt="Une vue de Ganvié, la cité lacustre du Bénin, avec des habitants naviguant sur des pirogues colorées, symbolisant l'innovation locale et l'esprit communautaire."
+              style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCsoSo9Ja56xG0wInPPrR5ryx0TZWNYT6huglV8_N8Qc6gmnN3ktnuwziV6YYjFPYU7WfSYMucAYPYOAjRlnnp0DHh7WbauOpsAjxUU8WBpdhVP_BH7J9nUPrxCXWh9RMN5FME6fsqV2TUyDRXVUUvvGprdN6AtvopVVS4j8tRka4an029rP1xmyFBBMW-Z0Z1jxMrMeKSSjA5nJCg4aRqcxoFQQko1HOsH1V19q2XxgvjlYmy7XuTXeL_FC1UfVhvQAaZXqPS8Jgo");'>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="flex justify-center py-16 sm:py-24 bg-background-grey dark:bg-background-dark/50" id="histoire">
+        <div class="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="w-full h-80 lg:h-full bg-center bg-no-repeat bg-cover rounded-xl order-last lg:order-first"
+              data-alt="Photo de l'équipe diversifiée et dynamique de MindXera, souriante et collaborant dans un bureau moderne."
+              style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBboeIyhv829eijnQTJ9nmnJfN6UWCedQuUK5B2CQF4fafNJBa_Ofnfoa8-hCgDHXvYcdQGDJKVDx23C7AGRkgSWTiWCNTZFj_XZ_Vv0TEWwz712yXhSjC-J-O6bUdYkEtbc-3bUlD3AkNYabquFBkSSv2x5WEw7B2kDIIp0FKg_zMl87Jw20zHX5fYpA1ndAqA9PQNutwNl9bmiNz1nlzM4VX6drH3SZCN_Lf-1SsNRRfs0wvp0rmH8HYVPdpQx3oRiabmTlDnIKE");'>
+            </div>
+            <div class="flex flex-col gap-6">
+              <h2
+                class="text-text-light dark:text-text-dark text-3xl md:text-4xl font-black leading-tight tracking-tight">
+                Notre Histoire</h2>
+              <p class="text-text-light/80 dark:text-text-dark/80 text-lg">MindXera a été fondée au cœur de Cotonou avec
+                une ambition claire : utiliser la technologie pour résoudre des problèmes concrets. En observant le
+                rythme de vie effréné de nos concitoyens, nous avons identifié un besoin universel : plus de temps
+                libre. La corvée de linge, chronophage et répétitive, nous est apparue comme une évidence. C'est de
+                cette réflexion qu'est né WaWash, notre première grande initiative pour transformer une contrainte en
+                une expérience fluide et agréable.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="flex justify-center py-16 sm:py-24 bg-background-light dark:bg-background-dark"
+        id="mission-valeurs">
+        <div class="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+            <div class="flex flex-col gap-6 p-8 rounded-xl bg-background-grey dark:bg-background-dark/50">
+              <div class="flex items-center gap-4">
+                <div class="p-3 bg-secondary/20 rounded-lg text-secondary">
+                  <span class="material-symbols-outlined" style="font-size: 36px;">rocket_launch</span>
+                </div>
+                <h2 class="text-text-light dark:text-text-dark text-3xl font-black leading-tight">Notre Mission</h2>
+              </div>
+              <p class="text-text-light/80 dark:text-text-dark/80 text-lg">Notre mission chez MindXera est de développer
+                des écosystèmes numériques intuitifs qui simplifient les tâches quotidiennes. Avec WaWash, nous visons à
+                libérer nos clients de la charge mentale et physique du linge, en leur offrant un service fiable, de
+                qualité et accessible, leur permettant de se consacrer à ce qui compte vraiment pour eux.</p>
+            </div>
+            <div class="flex flex-col gap-8 pt-8 lg:pt-0">
+              <h2
+                class="text-text-light dark:text-text-dark text-3xl md:text-4xl font-black leading-tight tracking-tight text-center lg:text-left">
+                Nos Valeurs Fondamentales</h2>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 text-primary mt-1"><span class="material-symbols-outlined">lightbulb</span>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Innovation</h3>
+                    <p class="text-text-light/80 dark:text-text-dark/80 mt-1">Nous cherchons constamment à améliorer et
+                      à réinventer les services du quotidien.</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 text-primary mt-1"><span
+                      class="material-symbols-outlined">verified_user</span></div>
+                  <div>
+                    <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Confiance</h3>
+                    <p class="text-text-light/80 dark:text-text-dark/80 mt-1">La transparence et la fiabilité sont au
+                      cœur de toutes nos interactions.</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 text-primary mt-1"><span class="material-symbols-outlined">groups</span>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Proximité</h3>
+                    <p class="text-text-light/80 dark:text-text-dark/80 mt-1">Nous créons des solutions par des
+                      Africains, pour les Africains.</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 text-primary mt-1"><span class="material-symbols-outlined">thumb_up</span>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Excellence</h3>
+                    <p class="text-text-light/80 dark:text-text-dark/80 mt-1">Nous nous engageons à offrir une qualité
+                      de service irréprochable.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="flex justify-center py-16 sm:py-24 bg-primary">
+        <div class="w-full max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+          <div class="flex flex-col items-center gap-6">
+            <h2 class="text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">Prêt à simplifier votre
+              vie ?</h2>
+            <p class="text-white/90 text-lg font-normal leading-normal max-w-2xl">Découvrez comment WaWash peut
+              transformer votre routine. Téléchargez l'application et dites adieu à la corvée de linge pour de bon.</p>
+            <div class="flex flex-wrap gap-4 justify-center pt-4">
+              <a href="/"
+                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-white text-primary text-base font-bold leading-normal tracking-wide hover:bg-opacity-90 transition-all">
+                <span class="truncate">Découvrir WaWash</span>
+            </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  @end
+@end

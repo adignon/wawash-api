@@ -1,0 +1,568 @@
+@layout.admin({ title: merchant.name, pageTitle: 'Merchant Details' })
+
+@slot('topbarActions')
+  <a href="{{ route('admin.merchants.index') }}" class="btn btn-secondary">
+    <span>←</span>
+    <span>Back to Merchants</span>
+  </a>
+  <a href="{{ route('admin.merchants.edit', { id: merchant.id }) }}" class="btn btn-primary">
+    <span>✏️</span>
+    <span>Edit</span>
+  </a>
+@end
+
+@slot('main')
+  <style>
+    .details-container {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .sticky-sidebar {
+      position: sticky;
+      top: 100px;
+    }
+
+    .stat-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 16px;
+      padding: 24px;
+      color: white;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-box::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 24px;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: #6b7280;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+
+    .tab:hover {
+      color: #667eea;
+      background: #f9fafb;
+    }
+
+    .tab.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .info-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      margin-bottom: 16px;
+    }
+
+    .order-card, .withdrawal-card, .address-card {
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: all 0.2s;
+    }
+
+    .order-card {
+      cursor: pointer;
+    }
+
+    .order-card:hover, .withdrawal-card:hover, .address-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 6px rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 1024px) {
+      .details-container {
+        grid-template-columns: 1fr;
+      }
+
+      .sticky-sidebar {
+        position: relative;
+        top: 0;
+      }
+    }
+  </style>
+
+  {{-- Statistics Cards --}}
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 32px;">
+    <div class="stat-box">
+      <div style="position: relative; z-index: 1;">
+        <div style="font-size: 40px; margin-bottom: 12px;">⚖️</div>
+        <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Total Kg Treated</div>
+        <div style="font-size: 36px; font-weight: 700;">{{ totalKg }}</div>
+        <div style="font-size: 13px; opacity: 0.8; margin-top: 4px;">From {{ completedOrdersCount }} orders</div>
+      </div>
+    </div>
+
+    <div class="stat-box" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+      <div style="position: relative; z-index: 1;">
+        <div style="font-size: 40px; margin-bottom: 12px;">💰</div>
+        <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Total Income</div>
+        <div style="font-size: 36px; font-weight: 700;">{{ totalIncome }}</div>
+        <div style="font-size: 13px; opacity: 0.8; margin-top: 4px;">FCFA</div>
+      </div>
+    </div>
+
+    <div class="stat-box" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+      <div style="position: relative; z-index: 1;">
+        <div style="font-size: 40px; margin-bottom: 12px;">💸</div>
+        <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Total Withdrawals</div>
+        <div style="font-size: 36px; font-weight: 700;">{{ totalWithdrawals }}</div>
+        <div style="font-size: 13px; opacity: 0.8; margin-top: 4px;">{{ successfulWithdrawals }} successful, {{ pendingWithdrawals }} pending</div>
+      </div>
+    </div>
+  </div>
+
+  {{-- Main Content with Sidebar --}}
+  <div class="details-container">
+    {{-- Sticky Left Sidebar --}}
+    <div class="sticky-sidebar">
+      <div class="info-card">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <div style="width: 80px; height: 80px; margin: 0 auto 16px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 40px; color: white;">
+            🏪
+          </div>
+          <h2 style="font-size: 22px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">
+            {{ merchant.name }}
+          </h2>
+          <div style="font-size: 13px; color: #6b7280;">
+            ID: #{{ merchant.id }}
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid #e5e7eb; padding-top: 20px;">
+          <h3 style="font-size: 14px; font-weight: 700; color: #374151; margin-bottom: 16px;">Information</h3>
+
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Washing Type</div>
+            <div style="font-size: 14px; font-weight: 600; color: #1f2937;">
+              @if(merchant.washingType === 'MANUAL')
+                🤲 Manual Washing
+              @else
+                🌀 Machine Washing
+              @end
+            </div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Balance</div>
+            <div style="font-size: 18px; font-weight: 700; color: #10b981;">
+              {{ (merchant.balance || 0).toLocaleString() }} FCFA
+            </div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Frozen Balance</div>
+            <div style="font-size: 18px; font-weight: 700; color: #f59e0b;">
+              {{ (merchant.frozenBalance || 0).toLocaleString() }} FCFA
+            </div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">Manager Accounts</div>
+            @if(managerAccounts && managerAccounts.length > 0)
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                @each(manager in managerAccounts)
+                  <div style="background: {{ manager.exists ? '#d1fae5' : '#fee2e2' }}; padding: 10px 12px; border-radius: 8px; border: 2px solid {{ manager.exists ? '#10b981' : '#ef4444' }};">
+                    <div style="font-size: 13px; font-weight: 700; color: #1f2937; font-family: monospace; margin-bottom: 6px;">
+                      📱 {{ manager.phone }}
+                    </div>
+                    @if(manager.exists)
+                      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <span style="background: #10b981; color: white; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700;">
+                          ✓ ACTIVE
+                        </span>
+                        <span style="font-size: 11px; color: #065f46; font-weight: 600;">
+                          Account Created
+                        </span>
+                      </div>
+                      <div style="font-size: 12px; color: #374151;">
+                        <strong>{{ manager.user.firstname || '' }} {{ manager.user.lastname || '' }}</strong>
+                      </div>
+                      @if(manager.user.email)
+                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px;">
+                          📧 {{ manager.user.email }}
+                        </div>
+                      @end
+                      <div style="margin-top: 6px;">
+                        <a href="{{ route('admin.users.edit', { id: manager.user.id }) }}" style="font-size: 11px; color: #10b981; font-weight: 600; text-decoration: none;">
+                          View Account →
+                        </a>
+                      </div>
+                    @else
+                      <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="background: #ef4444; color: white; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700;">
+                          ✗ NOT CREATED
+                        </span>
+                        <span style="font-size: 11px; color: #991b1b; font-weight: 600;">
+                          No Account Yet
+                        </span>
+                      </div>
+                      <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">
+                        Manager needs to register with this phone number
+                      </div>
+                    @end
+                  </div>
+                @end
+              </div>
+            @else
+              <div style="font-size: 13px; color: #9ca3af;">No manager phones</div>
+            @end
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Created</div>
+            <div style="font-size: 13px; color: #374151;">
+              {{ merchant.createdAt.toFormat('dd MMM yyyy') }}
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Last Updated</div>
+            <div style="font-size: 13px; color: #374151;">
+              {{ merchant.updatedAt.toFormat('dd MMM yyyy HH:mm') }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- Quick Actions --}}
+      <div class="info-card">
+        <h3 style="font-size: 14px; font-weight: 700; color: #374151; margin-bottom: 12px;">Quick Actions</h3>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <a href="{{ route('admin.merchants.edit', { id: merchant.id }) }}" class="btn btn-sm btn-secondary" style="width: 100%; justify-content: center;">
+            ✏️ Edit Merchant
+          </a>
+          <a href="{{ route('admin.merchant.address.create', { merchantId: merchant.id }) }}" class="btn btn-sm btn-secondary" style="width: 100%; justify-content: center;">
+            📍 Add Address
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {{-- Right Content Area with Tabs --}}
+    <div>
+      <div class="info-card">
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('orders')">
+            📦 Orders ({{ orders.length }})
+          </button>
+          <button class="tab" onclick="switchTab('withdrawals')">
+            💸 Withdrawals ({{ withdrawals.length }})
+          </button>
+          <button class="tab" onclick="switchTab('addresses')">
+            📍 Addresses ({{ merchant.addresses.length }})
+          </button>
+          <button class="tab" onclick="switchTab('statistics')">
+            📊 Statistics
+          </button>
+        </div>
+
+        {{-- Orders Tab --}}
+        <div id="orders-tab" class="tab-content active">
+          <h3 style="font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 20px;">Order History</h3>
+
+          @if(orders.length > 0)
+            @each(order in orders)
+              <a href="{{ route('admin.scheduling.order.details', { id: order.id }) }}" style="text-decoration: none; color: inherit; display: block;">
+                <div class="order-card">
+                  <div style="display: flex; justify-content: space-between; align-items: start; gap: 16px; margin-bottom: 12px;">
+                    <div style="flex: 1;">
+                      <div style="font-weight: 700; font-size: 16px; color: #667eea; margin-bottom: 4px;">
+                        {{ order.orderTitle || order.orderId }}
+                      </div>
+                      <div style="font-size: 13px; color: #6b7280;">
+                        Order ID: <span style="font-family: monospace; color: #667eea; font-weight: 600;">{{ order.orderId }}</span>
+                      </div>
+                    </div>
+                  <div style="text-align: right;">
+                    @if(order.status === 'DELIVERED')
+                      <span style="background: #d1fae5; color: #065f46; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: 700;">
+                        ✅ DELIVERED
+                      </span>
+                    @elseif(order.status === 'READY')
+                      <span style="background: #dbeafe; color: #1e40af; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: 700;">
+                        ✅ READY
+                      </span>
+                    @elseif(order.status === 'WASHING')
+                      <span style="background: #fef3c7; color: #92400e; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: 700;">
+                        🔄 WASHING
+                      </span>
+                    @elseif(order.status === 'PICKED')
+                      <span style="background: #e0e7ff; color: #4338ca; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: 700;">
+                        📦 PICKED
+                      </span>
+                    @else
+                      <span style="background: #e5e7eb; color: #374151; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: 700;">
+                        {{ order.status }}
+                      </span>
+                    @end
+                  </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; font-size: 13px;">
+                  <div>
+                    <span style="color: #6b7280;">Weight:</span>
+                    <strong style="color: #374151;">{{ (order.userKg || order.capacityKg || 0).toFixed(1) }} Kg</strong>
+                  </div>
+                  <div>
+                    <span style="color: #6b7280;">Cost:</span>
+                    <strong style="color: #10b981;">{{ (order.merchantTotalCost || 0).toLocaleString() }} FCFA</strong>
+                  </div>
+                  <div>
+                    <span style="color: #6b7280;">Date:</span>
+                    <strong style="color: #374151;">{{ order.createdAt.toFormat('dd/MM/yyyy') }}</strong>
+                  </div>
+                  @if(order.deliveryDate)
+                    <div>
+                      <span style="color: #6b7280;">Delivery:</span>
+                      <strong style="color: #374151;">{{ order.deliveryDate.toFormat('dd/MM/yyyy') }}</strong>
+                    </div>
+                  @end
+                </div>
+              </div>
+            </a>
+            @end
+          @else
+            <div style="text-align: center; padding: 60px 20px; color: #6b7280;">
+              <div style="font-size: 56px; margin-bottom: 16px;">📦</div>
+              <p style="font-size: 16px; margin: 0;">No orders yet</p>
+            </div>
+          @end
+        </div>
+
+        {{-- Withdrawals Tab --}}
+        <div id="withdrawals-tab" class="tab-content">
+          <h3 style="font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 20px;">Withdrawal History</h3>
+
+          @if(withdrawals.length > 0)
+            @each(withdrawal in withdrawals)
+              <div class="withdrawal-card">
+                <div style="display: flex; justify-content: space-between; align-items: start; gap: 16px;">
+                  <div style="flex: 1;">
+                    <div style="font-weight: 700; font-size: 16px; color: #1f2937; margin-bottom: 4px;">
+                      {{ withdrawal.paymentHash || 'N/A' }}
+                    </div>
+                    <div style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">
+                      {{ withdrawal.createdAt.toFormat('dd MMM yyyy HH:mm') }}
+                    </div>
+                    @if(withdrawal.recevingAdress)
+                      <div style="font-size: 12px; color: #6b7280; font-family: monospace;">
+                        To: {{ withdrawal.recevingAdress }}
+                      </div>
+                    @end
+                    @if(withdrawal.comment)
+                      <div style="font-size: 12px; color: #9ca3af; margin-top: 6px; font-style: italic;">
+                        "{{ withdrawal.comment }}"
+                      </div>
+                    @end
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="font-weight: 700; font-size: 20px; color: #ef4444; margin-bottom: 8px;">
+                      -{{ withdrawal.askAmount.toLocaleString() }}
+                    </div>
+                    <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">FCFA</div>
+                    @if(withdrawal.status === 'SUCCESS')
+                      <span style="background: #d1fae5; color: #065f46; padding: 5px 12px; border-radius: 12px; font-size: 11px; font-weight: 700;">
+                        ✅ SUCCESS
+                      </span>
+                    @elseif(withdrawal.status === 'PENDING')
+                      <span style="background: #fef3c7; color: #92400e; padding: 5px 12px; border-radius: 12px; font-size: 11px; font-weight: 700;">
+                        ⏳ PENDING
+                      </span>
+                    @else
+                      <span style="background: #e5e7eb; color: #374151; padding: 5px 12px; border-radius: 12px; font-size: 11px; font-weight: 700;">
+                        {{ withdrawal.status }}
+                      </span>
+                    @end
+                  </div>
+                </div>
+              </div>
+            @end
+          @else
+            <div style="text-align: center; padding: 60px 20px; color: #6b7280;">
+              <div style="font-size: 56px; margin-bottom: 16px;">💸</div>
+              <p style="font-size: 16px; margin: 0;">No withdrawals yet</p>
+            </div>
+          @end
+        </div>
+
+        {{-- Addresses Tab --}}
+        <div id="addresses-tab" class="tab-content">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="font-size: 18px; font-weight: 700; color: #1f2937; margin: 0;">Store Addresses</h3>
+            <a href="{{ route('admin.merchant.address.create', { merchantId: merchant.id }) }}" class="btn btn-sm btn-primary">
+              + Add Address
+            </a>
+          </div>
+
+          @if(merchant.addresses && merchant.addresses.length > 0)
+            @each(address in merchant.addresses)
+              <div class="address-card">
+                <div style="display: flex; justify-content: space-between; align-items: start; gap: 16px;">
+                  <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                      <span style="font-size: 24px;">📍</span>
+                      <h4 style="font-size: 16px; font-weight: 700; color: #1f2937; margin: 0;">{{ address.quartier }}</h4>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; font-size: 13px;">
+                      <div>
+                        <span style="color: #6b7280;">Commune:</span>
+                        <strong style="color: #374151;">{{ address.commune }}</strong>
+                      </div>
+                      <div>
+                        <span style="color: #6b7280;">Arrondissement:</span>
+                        <strong style="color: #374151;">{{ address.arrondissement }}</strong>
+                      </div>
+                    </div>
+
+                    <div style="font-size: 13px; color: #6b7280; margin-bottom: 10px;">
+                      {{ address.description }}
+                    </div>
+
+                    <div style="display: flex; gap: 16px; font-size: 12px; color: #6b7280;">
+                      <div>Contact: <strong style="color: #374151;">{{ address.contactFullname }}</strong></div>
+                      <div>Phone: <strong style="color: #374151;">{{ address.contactPhone }}</strong></div>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; gap: 6px;">
+                    <a href="{{ route('admin.merchant.address.edit', { merchantId: merchant.id, id: address.id }) }}" class="btn btn-sm btn-secondary">
+                      Edit
+                    </a>
+                  </div>
+                </div>
+              </div>
+            @end
+          @else
+            <div style="text-align: center; padding: 60px 20px; color: #6b7280;">
+              <div style="font-size: 56px; margin-bottom: 16px;">📍</div>
+              <p style="font-size: 16px; margin: 0;">No addresses added yet</p>
+              <p style="font-size: 14px; margin-top: 8px;">
+                <a href="{{ route('admin.merchant.address.create', { merchantId: merchant.id }) }}" style="color: #667eea;">Add first address</a>
+              </p>
+            </div>
+          @end
+        </div>
+
+        {{-- Statistics Tab --}}
+        <div id="statistics-tab" class="tab-content">
+          <h3 style="font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 20px;">Order Statistics by Status</h3>
+
+          <div style="display: grid; gap: 12px;">
+            <div style="background: #f9fafb; border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">Created</div>
+                <div style="font-size: 24px; font-weight: 700; color: #374151;">{{ ordersByStatus.CREATED }}</div>
+              </div>
+              <div style="font-size: 36px;">📝</div>
+            </div>
+
+            <div style="background: #f0fdf4; border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">Started</div>
+                <div style="font-size: 24px; font-weight: 700; color: #059669;">{{ ordersByStatus.STARTED }}</div>
+              </div>
+              <div style="font-size: 36px;">🚀</div>
+            </div>
+
+            <div style="background: #ede9fe; border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">Picked</div>
+                <div style="font-size: 24px; font-weight: 700; color: #7c3aed;">{{ ordersByStatus.PICKED }}</div>
+              </div>
+              <div style="font-size: 36px;">📦</div>
+            </div>
+
+            <div style="background: #fef3c7; border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">Washing</div>
+                <div style="font-size: 24px; font-weight: 700; color: #d97706;">{{ ordersByStatus.WASHING }}</div>
+              </div>
+              <div style="font-size: 36px;">🔄</div>
+            </div>
+
+            <div style="background: #dbeafe; border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">Ready</div>
+                <div style="font-size: 24px; font-weight: 700; color: #1e40af;">{{ ordersByStatus.READY }}</div>
+              </div>
+              <div style="font-size: 36px;">✅</div>
+            </div>
+
+            <div style="background: #d1fae5; border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">Delivered</div>
+                <div style="font-size: 24px; font-weight: 700; color: #065f46;">{{ ordersByStatus.DELIVERED }}</div>
+              </div>
+              <div style="font-size: 36px;">🎉</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 24px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white;">
+            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Total Orders</div>
+            <div style="font-size: 40px; font-weight: 700;">{{ orders.length }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabName) {
+      // Hide all tab contents
+      const contents = document.querySelectorAll('.tab-content');
+      contents.forEach(content => content.classList.remove('active'));
+
+      // Remove active class from all tabs
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach(tab => tab.classList.remove('active'));
+
+      // Show selected tab content
+      document.getElementById(tabName + '-tab').classList.add('active');
+
+      // Add active class to clicked tab
+      event.target.classList.add('active');
+    }
+  </script>
+@end
+@end

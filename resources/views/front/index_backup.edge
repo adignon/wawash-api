@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html class="light" lang="fr">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>WaWash - Votre service de blanchisserie à la demande</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#06ADC9",
+            "secondary": "#5DADE2",
+            "background-light": "#FFFFFF",
+            "background-grey": "#F4F6F7",
+            "background-dark": "#112117",
+            "text-light": "#34495E",
+            "text-dark": "#EAEAEA"
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.5rem",
+            "lg": "0.75rem",
+            "xl": "1rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+    }
+    .modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      animation: slideDown 0.3s ease-out;
+    }
+    @keyframes slideDown {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<body class="font-display bg-background-light text-text-light dark:bg-background-dark dark:text-text-dark">
+  <div class="relative w-full flex flex-col group/design-root overflow-x-hidden">
+    <header
+      class="sticky top-0 z-50 flex items-center justify-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+      <div class="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center gap-4 text-primary">
+            <div class="text-primary">
+              <img src="/assets/images/logo.png" class="w-[150px]"/>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <nav class="hidden md:flex items-center gap-9">
+              <a class="text-text-light dark:text-text-dark hover:text-primary dark:hover:text-primary text-sm font-medium leading-normal transition-colors"
+                href="#a-propos">À propos</a>
+              <a class="text-text-light dark:text-text-dark hover:text-primary dark:hover:text-primary text-sm font-medium leading-normal transition-colors"
+                href="#services">Nos Services</a>
+              <a class="text-text-light dark:text-text-dark hover:text-primary dark:hover:text-primary text-sm font-medium leading-normal transition-colors"
+                href="#formules">Nos Formules</a>
+              <a class="text-text-light dark:text-text-dark hover:text-primary dark:hover:text-primary text-sm font-medium leading-normal transition-colors"
+                href="#contact">Contact</a>
+            </nav>
+            <button id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" aria-label="Toggle theme">
+              <span class="material-symbols-outlined text-text-light dark:text-text-dark">dark_mode</span>
+            </button>
+            <button id="download-btn"
+              class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-wide hover:bg-opacity-90 transition-all">
+              <span class="truncate">Télécharger</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main class="flex-grow">
+      <section class="flex justify-center py-16 sm:py-24 lg:py-32 bg-background-light dark:bg-background-dark">
+        <div class="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="flex flex-col gap-6 text-center lg:text-left">
+              <h1
+                class="text-text-light dark:text-text-dark text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tighter">
+                Votre linge, propre et livré, sans effort.</h1>
+              <h2
+                class="text-text-light dark:text-text-dark text-lg md:text-xl font-normal leading-normal max-w-xl mx-auto lg:mx-0">
+                Profitez de notre service de blanchisserie sur demande directement depuis votre smartphone. Planifiez,
+                suivez et recevez votre linge frais à votre porte.</h2>
+              <div class="flex flex-wrap gap-3 justify-center lg:justify-start pt-4">
+                <button
+                  class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-wide hover:bg-opacity-90 transition-all">
+                  <span class="truncate">Télécharger sur l'App Store</span>
+                </button>
+                <button
+                  class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-gray-100 dark:bg-gray-800 text-text-light dark:text-text-dark text-base font-bold leading-normal tracking-wide hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+                  <span class="truncate">Disponible sur Google Play</span>
+                </button>
+              </div>
+            </div>
+            <div class="w-full aspect-square bg-center bg-no-repeat bg-cover rounded-xl"
+              data-alt="A smiling person holding a basket of freshly laundered and folded clothes in a modern home."
+              style='background-image: url("/assets/images/african-american-woman-braided-hair.jpg");'>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="flex justify-center py-16 sm:py-24 bg-background-grey dark:bg-background-dark/50">
+        <div class="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div class="flex flex-col gap-12">
+            <div class="flex flex-col gap-4 text-center">
+              <h2
+                class="text-text-light dark:text-text-dark text-3xl md:text-4xl font-black leading-tight tracking-tight">
+                Comment ça marche ?</h2>
+              <p class="text-text-light dark:text-text-dark/80 text-lg font-normal leading-normal max-w-3xl mx-auto">
+                Notre processus est simple et transparent. En quatre étapes faciles, votre corvée de linge devient notre
+                priorité.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div
+                class="flex flex-col flex-1 gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-background-light dark:bg-background-dark p-6 text-center items-center">
+                <div class="text-secondary">
+                  <span class="material-symbols-outlined" style="font-size: 36px;">calendar_month</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <h3 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight">1. Planifiez</h3>
+                  <p class="text-text-light/80 dark:text-text-dark/80 text-sm font-normal leading-normal">Choisissez un
+                    créneau de collecte et de livraison via l'application.</p>
+                </div>
+              </div>
+              <div
+                class="flex flex-col flex-1 gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-background-light dark:bg-background-dark p-6 text-center items-center">
+                <div class="text-secondary">
+                  <span class="material-symbols-outlined" style="font-size: 36px;">local_shipping</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <h3 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight">2. Collecte</h3>
+                  <p class="text-text-light/80 dark:text-text-dark/80 text-sm font-normal leading-normal">Nous venons
+                    chercher votre linge directement à votre porte.</p>
+                </div>
+              </div>
+              <div
+                class="flex flex-col flex-1 gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-background-light dark:bg-background-dark p-6 text-center items-center">
+                <div class="text-secondary">
+                  <span class="material-symbols-outlined" style="font-size: 36px;">local_laundry_service</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <h3 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight">3. Nettoyage</h3>
+                  <p class="text-text-light/80 dark:text-text-dark/80 text-sm font-normal leading-normal">Nos experts
+                    traitent votre linge avec le plus grand soin.</p>
+                </div>
+              </div>
+              <div
+                class="flex flex-col flex-1 gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-background-light dark:bg-background-dark p-6 text-center items-center">
+                <div class="text-secondary">
+                  <span class="material-symbols-outlined" style="font-size: 36px;">inventory_2</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <h3 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight">4. Livraison</h3>
+                  <p class="text-text-light/80 dark:text-text-dark/80 text-sm font-normal leading-normal">Recevez votre
+                    linge propre, frais et plié à l'heure convenue.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="flex justify-center py-16 sm:py-24 bg-background-light dark:bg-background-dark" id="a-propos">
+        <div class="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="flex flex-col gap-6">
+              <h2
+                class="text-text-light dark:text-text-dark text-3xl md:text-4xl font-black leading-tight tracking-tight">
+                Notre mission : vous libérer de la corvée de linge</h2>
+              <p class="text-text-light/80 dark:text-text-dark/80 text-lg">WaWash est né d'une idée simple : redonner du
+                temps aux gens. Fondé au Bénin, notre service a été conçu pour s'intégrer parfaitement à votre vie
+                active, en transformant une tâche ménagère en une expérience simple, fiable et de haute qualité.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 text-primary mt-1"><span
+                      class="material-symbols-outlined">high_quality</span></div>
+                  <div>
+                    <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Qualité</h3>
+                    <p class="text-text-light/80 dark:text-text-dark/80 mt-1">Un soin expert pour chaque vêtement.</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 text-primary mt-1"><span
+                      class="material-symbols-outlined">diversity_3</span></div>
+                  <div>
+                    <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Communauté</h3>
+                    <p class="text-text-light/80 dark:text-text-dark/80 mt-1">Un service local, pour les gens d'ici.</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 text-primary mt-1"><span class="material-symbols-outlined">verified</span>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Confiance</h3>
+                    <p class="text-text-light/80 dark:text-text-dark/80 mt-1">Transparence et fiabilité à chaque étape.
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 text-primary mt-1"><span
+                      class="material-symbols-outlined">new_releases</span></div>
+                  <div>
+                    <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Innovation</h3>
+                    <p class="text-text-light/80 dark:text-text-dark/80 mt-1">Simplifier votre quotidien grâce à la
+                      technologie.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="w-full h-80 lg:h-full bg-center bg-no-repeat bg-cover rounded-xl"
+              data-alt="Photo de l'équipe WaWash souriante et professionnelle."
+              style='background-image: url("/assets/images/image-2.png"); background-position:top;'>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="flex justify-center py-16 sm:py-24 bg-background-grey dark:bg-background-dark/50" id="services">
+        <div class="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div class="flex flex-col gap-12">
+            <div class="flex flex-col gap-4 text-center">
+              <h2
+                class="text-text-light dark:text-text-dark text-3xl md:text-4xl font-black leading-tight tracking-tight">
+                Nos Services de Soin du Linge</h2>
+              <p class="text-text-light dark:text-text-dark/80 text-lg font-normal leading-normal max-w-3xl mx-auto">Un
+                service complet pour répondre à tous vos besoins, avec la flexibilité que vous méritez.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 text-secondary mt-1"><span class="material-symbols-outlined">water_drop</span>
+                </div>
+                <div>
+                  <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Lavage</h3>
+                  <p class="text-text-light/80 dark:text-text-dark/80 mt-1">Un nettoyage en profondeur qui respecte vos
+                    textiles et ravive les couleurs.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 text-secondary mt-1"><span class="material-symbols-outlined">air</span></div>
+                <div>
+                  <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Séchage</h3>
+                  <p class="text-text-light/80 dark:text-text-dark/80 mt-1">Un séchage optimal pour préserver la douceur
+                    et la forme de vos vêtements.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 text-secondary mt-1"><span class="material-symbols-outlined">checkroom</span>
+                </div>
+                <div>
+                  <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Pliage</h3>
+                  <p class="text-text-light/80 dark:text-text-dark/80 mt-1">Votre linge est soigneusement plié, prêt à
+                    être rangé dès la livraison.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 text-secondary mt-1"><span class="material-symbols-outlined">iron</span></div>
+                <div>
+                  <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Repassage</h3>
+                  <p class="text-text-light/80 dark:text-text-dark/80 mt-1">Un service de repassage impeccable pour une
+                    apparence toujours soignée.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4 sm:col-span-2 lg:col-span-1 lg:col-start-2">
+                <div class="flex-shrink-0 text-secondary mt-1"><span
+                    class="material-symbols-outlined">event_repeat</span></div>
+                <div>
+                  <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Ramassage Flexible</h3>
+                  <p class="text-text-light/80 dark:text-text-dark/80 mt-1">Possibilité de choisir plusieurs jours de
+                    ramassage pour s'adapter à votre emploi du temps.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="flex justify-center py-16 sm:py-24 bg-[#035E6E] dark:bg-background-dark" id="formules">
+        <div class="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div class="flex flex-col gap-12">
+            <div class="flex flex-col gap-4 text-center">
+              <h2 class="text-white dark:text-text-dark text-3xl md:text-4xl font-black leading-tight tracking-tight">
+                Nos Formules</h2>
+              <p class="text-white/80 dark:text-text-dark/80 text-lg font-normal leading-normal max-w-3xl mx-auto">Des
+                abonnements flexibles, conçus pour s'adapter à votre style de vie.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+              <div
+                class="flex flex-col gap-8 p-8 rounded-xl border-2 border-primary bg-background-light dark:bg-background-dark shadow-2xl relative transform hover:scale-105 transition-transform duration-300">
+                <p
+                  class="absolute -top-4 left-1/2 -translate-x-1/2 text-white text-xs font-medium leading-normal tracking-wide rounded-full bg-primary px-3 py-1 text-center">
+                  Le plus recommandé</p>
+                <div class="flex flex-col gap-4 text-center">
+                  <div>
+                    <h3 class="text-text-light dark:text-text-dark text-2xl font-bold leading-tight">{{ famillePackage ? famillePackage.name : 'Famille' }}</h3>
+                    <p class="text-text-light/80 dark:text-text-dark/80 text-sm">Idéal pour les familles actives</p>
+                  </div>
+                  <div class="my-4">
+                    <p class="text-6xl font-black text-secondary">{{ famillePackage ? Math.floor(famillePackage.kg) :" -" }} Kg</p>
+                    <p class="text-text-light/80 dark:text-text-dark/80 font-medium">de vêtements</p>
+                  </div>
+                  <p class="flex items-baseline justify-center gap-1 text-text-light dark:text-text-dark">
+                    <span class="text-4xl font-black leading-tight tracking-tight">{{ famillePackage ? famillePackage.amount : '-' }}f</span>
+                    <span class="text-base font-bold leading-tight">/semaine</span>
+                  </p>
+                </div>
+                <div class="flex flex-col gap-3 pt-2 text-left">
+                  <div class="flex gap-3 items-center text-text-light dark:text-text-dark text-sm"><span
+                      class="material-symbols-outlined text-primary">check_circle</span>Lavage, séchage et pliage inclus
+                  </div>
+                  <div class="flex gap-3 items-center text-text-light dark:text-text-dark text-sm"><span
+                      class="material-symbols-outlined text-primary">check_circle</span>Jusqu'à 2 collectes gratuites par semaine
+                  </div>
+                  <div class="flex gap-3 items-center text-text-light dark:text-text-dark text-sm"><span
+                      class="material-symbols-outlined text-primary">check_circle</span>Aucun frais caché
+                  </div>
+                </div>
+                <button
+                  class="flex w-full mt-auto cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-wide hover:bg-opacity-90 transition-all">
+                  <span class="truncate">Souscrire</span>
+                </button>
+              </div>
+              <div class="grid grid-cols-1 gap-8">
+                <div
+                  class="flex flex-col gap-6 p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-background-light dark:bg-background-dark transform hover:scale-105 hover:shadow-2xl transition-all duration-300">
+                  <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
+                    <div class="flex-shrink-0 text-center">
+                      <p class="text-5xl font-black text-secondary">{{ essentialPackage ? Math.floor(essentialPackage.kg) : '-' }} Kg</p>
+                      <p class="text-text-light/80 dark:text-text-dark/80 text-sm font-medium">de vêtements</p>
+                    </div>
+                    <div class="flex-grow">
+                      <h3 class="text-text-light dark:text-text-dark text-xl font-bold leading-tight">{{ essentialPackage ? essentialPackage.name : 'Essentiel' }}</h3>
+                      <p class="flex items-baseline gap-1 text-text-light dark:text-text-dark">
+                        <span class="text-3xl font-black leading-tight tracking-tight">{{ essentialPackage ? essentialPackage.amount : '-' }}f</span>
+                        <span class="text-sm font-bold leading-tight">/semaine</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex flex-col gap-2 pt-2 border-t border-gray-200 dark:border-gray-800">
+                    <div class="flex gap-3 items-center text-text-light dark:text-text-dark text-sm"><span
+                        class="material-symbols-outlined text-primary">check_circle</span>Lavage, séchage et pliage inclus
+                    </div>
+                    <div class="flex gap-3 items-center text-text-light dark:text-text-dark text-sm"><span
+                        class="material-symbols-outlined text-primary">check_circle</span>Collecte une fois par semaine
+                    </div>
+                  </div>
+                  <button
+                    class="flex w-full mt-2 cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-4 bg-gray-100 dark:bg-gray-800 text-text-light dark:text-text-dark text-sm font-bold leading-normal tracking-wide hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+                    <span class="truncate">Souscrire</span>
+                  </button>
+                </div>
+                <div
+                  class="flex flex-col gap-6 p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-background-light dark:bg-background-dark transform hover:scale-105 hover:shadow-2xl transition-all duration-300">
+                  <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
+                    <div class="flex-shrink-0 text-center">
+                      <p class="text-5xl font-black text-secondary">{{ premiumPackage ? Math.floor(premiumPackage.kg) : 20 }} Kg</p>
+                      <p class="text-text-light/80 dark:text-text-dark/80 text-sm font-medium">de vêtements</p>
+                    </div>
+                    <div class="flex-grow">
+                      <h3 class="text-text-light dark:text-text-dark text-xl font-bold leading-tight">{{ premiumPackage ? premiumPackage.name : 'Premium' }}</h3>
+                      <p class="flex items-baseline gap-1 text-text-light dark:text-text-dark">
+                        <span class="text-3xl font-black leading-tight tracking-tight">{{ premiumPackage ? premiumPackage.amount : '-' }}f</span>
+                        <span class="text-sm font-bold leading-tight">/semaine</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex flex-col gap-2 pt-2 border-t border-gray-200 dark:border-gray-800">
+                    <div class="flex gap-3 items-center text-text-light dark:text-text-dark text-sm"><span
+                        class="material-symbols-outlined text-primary">check_circle</span>Une collecte gratuite par semaine
+                      collecte flexible</div>
+                    <div class="flex gap-3 items-center text-text-light dark:text-text-dark text-sm"><span
+                        class="material-symbols-outlined text-primary">check_circle</span>Aucun frais caché</div>
+                  </div>
+                  <button
+                    class="flex w-full mt-2 cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-4 bg-gray-100 dark:bg-gray-800 text-text-light dark:text-text-dark text-sm font-bold leading-normal tracking-wide hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+                    <span class="truncate">Souscrire</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="flex justify-center py-16 sm:py-24 bg-background-grey dark:bg-background-dark/50" id="contact">
+        <div class="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div class="flex flex-col gap-4 text-center mb-12">
+            <h2
+              class="text-text-light dark:text-text-dark text-3xl md:text-4xl font-black leading-tight tracking-tight">
+              Contactez-nous</h2>
+            <p class="text-text-light dark:text-text-dark/80 text-lg font-normal leading-normal max-w-3xl mx-auto">Une
+              question ? Une suggestion ? Notre équipe est à votre écoute.</p>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div
+              class="bg-background-light dark:bg-background-dark p-8 rounded-xl border border-gray-200 dark:border-gray-800 shadow-lg">
+
+              @if(flashMessages.has('success'))
+                <div class="mb-6 p-4 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-lg">
+                  <p class="text-green-800 dark:text-green-200 text-sm font-medium">✓ {{ flashMessages.get('success') }}</p>
+                </div>
+              @end
+
+              @if(flashMessages.has('error'))
+                <div class="mb-6 p-4 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg">
+                  <p class="text-red-800 dark:text-red-200 text-sm font-medium">✗ {{ flashMessages.get('error') }}</p>
+                </div>
+              @end
+               @if(flashMessages.has('errors'))
+                <div class="mb-6 p-4 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg">
+                  <p class="text-red-800 dark:text-red-200 text-sm font-medium">✗ {{ flashMessages.get('error') }}</p>
+                </div>
+              @end
+
+              <form action="{{ route('front.contact.submit') }}" method="POST" class="flex flex-col gap-6">
+                <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+
+                <div class="flex flex-col gap-1.5">
+                  <label class="font-medium text-sm text-text-light dark:text-text-dark" for="name">Nom</label>
+                  <input
+                    class="w-full h-11 px-4 rounded-lg bg-background-grey dark:bg-background-dark/50 border-gray-300 dark:border-gray-700 focus:border-primary focus:ring-primary"
+                    id="name" name="name" placeholder="Votre nom complet" type="text" required />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="font-medium text-sm text-text-light dark:text-text-dark" for="email">Email</label>
+                  <input
+                    class="w-full h-11 px-4 rounded-lg bg-background-grey dark:bg-background-dark/50 border-gray-300 dark:border-gray-700 focus:border-primary focus:ring-primary"
+                    id="email" name="email" placeholder="votre.email@example.com" type="email" required />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="font-medium text-sm text-text-light dark:text-text-dark" for="message">Message</label>
+                  <textarea
+                    class="w-full p-4 rounded-lg bg-background-grey dark:bg-background-dark/50 border-gray-300 dark:border-gray-700 focus:border-primary focus:ring-primary"
+                    id="message" name="message" placeholder="Comment pouvons-nous vous aider ?" rows="4" required></textarea>
+                </div>
+                <button
+                  class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-wide hover:bg-opacity-90 transition-all"
+                  type="submit">
+                  <span class="truncate">Envoyer le message</span>
+                </button>
+              </form>
+            </div>
+            <div class="flex flex-col justify-center gap-8">
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 text-secondary mt-1"><span class="material-symbols-outlined">call</span></div>
+                <div>
+                  <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Téléphone</h3>
+                  <p class="text-text-light/80 dark:text-text-dark/80 mt-1 hover:text-primary transition-colors"><a
+                      href="tel:+22900000000">+229 00 00 00 00</a></p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 text-secondary mt-1"><span class="material-symbols-outlined">mail</span></div>
+                <div>
+                  <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Email</h3>
+                  <p class="text-text-light/80 dark:text-text-dark/80 mt-1 hover:text-primary transition-colors"><a
+                      href="mailto:contact@wawash.bj">contact@wawash.bj</a></p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 text-secondary mt-1"><span
+                    class="material-symbols-outlined">location_on</span></div>
+                <div>
+                  <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Adresse</h3>
+                  <p class="text-text-light/80 dark:text-text-dark/80 mt-1">Cotonou, Bénin</p>
+                </div>
+              </div>
+              <div class="w-full h-48 bg-gray-200 dark:bg-gray-800 rounded-lg mt-4 overflow-hidden"><iframe
+                  allowfullscreen="" height="100%" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126884.46059945196!2d2.339686034177264!3d6.372579246187514!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1024a5e62a0434b1%3A0x673445889ab83528!2sCotonou%2C%20Benin!5e0!3m2!1sen!2sus!4v1689625900145!5m2!1sen!2sus"
+                  style="border:0;" width="100%"></iframe></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="flex justify-center py-16 sm:py-24 bg-primary">
+        <div class="w-full max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+          <div class="flex flex-col items-center gap-6">
+            <h2 class="text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">Gagnez du temps. Vivez
+              plus.</h2>
+            <p class="text-white/90 text-lg font-normal leading-normal max-w-2xl">Téléchargez l'application WaWash et
+              dites adieu à la corvée de linge pour de bon.</p>
+            <div class="flex flex-wrap gap-4 justify-center pt-4">
+              <button
+                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-white text-primary text-base font-bold leading-normal tracking-wide hover:bg-opacity-90 transition-all">
+                <span class="truncate">Télécharger sur l'App Store</span>
+              </button>
+              <button
+                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary/20 text-white border border-white/50 text-base font-bold leading-normal tracking-wide hover:bg-primary/40 transition-all">
+                <span class="truncate">Disponible sur Google Play</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="bg-background-grey dark:bg-background-dark/50">
+      <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div class="md:col-span-1">
+            <div class="flex items-center gap-2 mb-4">
+              <div class=" text-primary">
+                <img src="/assets/images/logo.png" class="w-[120px]"/>
+              </div>
+            </div>
+            <p class="text-sm text-text-light/70 dark:text-text-dark/70">L'application de blanchisserie depuis chez vous qui vous libère du
+              temps.</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-text-light dark:text-text-dark mb-4">Plan du site</h4>
+            <ul class="space-y-2">
+              <li><a class="text-sm text-text-light/70 dark:text-text-dark/70 hover:text-primary transition-colors"
+                  href="{{ route('front.about') }}">À propos</a></li>
+              <li><a class="text-sm text-text-light/70 dark:text-text-dark/70 hover:text-primary transition-colors"
+                  href="#services">Nos Services</a></li>
+              <li><a class="text-sm text-text-light/70 dark:text-text-dark/70 hover:text-primary transition-colors"
+                  href="#formules">Nos Formules</a></li>
+              <li><a class="text-sm text-text-light/70 dark:text-text-dark/70 hover:text-primary transition-colors"
+                  href="#contact">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-bold text-text-light dark:text-text-dark mb-4">Légal</h4>
+            <ul class="space-y-2">
+              <li><a class="text-sm text-text-light/70 dark:text-text-dark/70 hover:text-primary transition-colors"
+                  href="{{ route('front.terms') }}">Conditions d'utilisation</a></li>
+              <li><a class="text-sm text-text-light/70 dark:text-text-dark/70 hover:text-primary transition-colors"
+                  href="{{ route('front.privacy') }}">Politique de confidentialité</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-bold text-text-light dark:text-text-dark mb-4">Contact</h4>
+            <ul class="space-y-2">
+              <li><a class="text-sm text-text-light/70 dark:text-text-dark/70 hover:text-primary transition-colors"
+                  href="mailto:contact@wawash.bj">contact@wawash.bj</a></li>
+              <li><a class="text-sm text-text-light/70 dark:text-text-dark/70 hover:text-primary transition-colors"
+                  href="tel:+22900000000">+229 00 00 00 00</a></li>
+              <li><span class="text-sm text-text-light/70 dark:text-text-dark/70">Cotonou, Bénin</span></li>
+            </ul>
+          </div>
+        </div>
+        <div
+          class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-800">
+          <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p class="text-sm text-text-light/60 dark:text-text-dark/60">© {{ new Date().getFullYear() }} WaWash - Un service de <span class="font-semibold">MindXera</span>. Tous droits réservés.</p>
+            <div class="flex items-center gap-4">
+              <a href="https://facebook.com/wawash.bj" target="_blank" rel="noopener noreferrer"
+                 class="text-text-light/70 dark:text-text-dark/70 hover:text-primary transition-colors">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" />
+                </svg>
+              </a>
+              <a href="https://twitter.com/wawash_bj" target="_blank" rel="noopener noreferrer"
+                 class="text-text-light/70 dark:text-text-dark/70 hover:text-primary transition-colors">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                </svg>
+              </a>
+              <a href="https://instagram.com/wawash.bj" target="_blank" rel="noopener noreferrer"
+                 class="text-text-light/70 dark:text-text-dark/70 hover:text-primary transition-colors">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" />
+                </svg>
+              </a>
+              <a href="https://linkedin.com/company/mindxera" target="_blank" rel="noopener noreferrer"
+                 class="text-text-light/70 dark:text-text-dark/70 hover:text-primary transition-colors">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clip-rule="evenodd" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  {{-- Download Modal --}}
+  <div id="download-modal" class="modal">
+    <div class="modal-content w-full max-w-md mx-4">
+      <div class="bg-background-light dark:bg-background-dark rounded-2xl shadow-2xl overflow-hidden">
+        {{-- Header --}}
+        <div class="bg-gradient-to-r from-primary to-secondary p-6 text-center">
+          <div class="text-6xl mb-4">🚀</div>
+          <h2 class="text-2xl font-black text-white mb-2">Application en Version Bêta</h2>
+          <p class="text-white/90 text-sm">Soyez parmi les premiers à tester WaWash</p>
+        </div>
+
+        {{-- Content --}}
+        <div class="p-6">
+          <div class="space-y-4 mb-6">
+            <div class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-primary mt-1">check_circle</span>
+              <div>
+                <h3 class="font-bold text-text-light dark:text-text-dark">Fonctionnalités complètes</h3>
+                <p class="text-sm text-text-light/80 dark:text-text-dark/80">Accédez à toutes nos fonctionnalités avant tout le monde</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-primary mt-1">bug_report</span>
+              <div>
+                <h3 class="font-bold text-text-light dark:text-text-dark">En cours d'amélioration</h3>
+                <p class="text-sm text-text-light/80 dark:text-text-dark/80">Votre feedback nous aide à améliorer l'expérience</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-primary mt-1">update</span>
+              <div>
+                <h3 class="font-bold text-text-light dark:text-text-dark">Mises à jour régulières</h3>
+                <p class="text-sm text-text-light/80 dark:text-text-dark/80">Nouvelles fonctionnalités ajoutées fréquemment</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-background-grey dark:bg-background-dark/50 rounded-lg p-4 mb-6">
+            <p class="text-sm text-text-light dark:text-text-dark text-center">
+              <span class="font-bold">Note:</span> Cette version peut contenir des bugs. Merci de votre compréhension et patience.
+            </p>
+          </div>
+
+          {{-- Buttons --}}
+          <div class="space-y-3">
+            <a href="#" class="flex items-center justify-center gap-2 w-full h-12 px-5 bg-primary text-white rounded-lg font-bold hover:bg-opacity-90 transition-all">
+              <span class="material-symbols-outlined">download</span>
+              <span>Télécharger l'application</span>
+            </a>
+            <button id="close-modal" class="w-full h-10 px-4 bg-gray-100 dark:bg-gray-800 text-text-light dark:text-text-dark rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+              Plus tard
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme Toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+    const themeIcon = themeToggle.querySelector('.material-symbols-outlined');
+
+    // Check for saved theme preference or default to 'light'
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    html.classList.remove('light', 'dark');
+    html.classList.add(currentTheme);
+    updateThemeIcon(currentTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const newTheme = html.classList.contains('dark') ? 'light' : 'dark';
+      html.classList.remove('light', 'dark');
+      html.classList.add(newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon(newTheme);
+    });
+
+    function updateThemeIcon(theme) {
+      themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+    }
+
+    // Modal functionality
+    const downloadBtn = document.getElementById('download-btn');
+    const modal = document.getElementById('download-modal');
+    const closeModalBtn = document.getElementById('close-modal');
+
+    // Open modal
+    downloadBtn.addEventListener('click', () => {
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+
+    // Close modal
+    closeModalBtn.addEventListener('click', () => {
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    });
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+    });
+
+    // Close modal with ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+    });
+
+    // Update all download buttons on the page
+    const allDownloadBtns = document.querySelectorAll('button:not(#download-btn):not(#close-modal):not(#theme-toggle)');
+    allDownloadBtns.forEach(btn => {
+      if (btn.textContent.includes('Télécharger') || btn.textContent.includes('App Store') || btn.textContent.includes('Google Play')) {
+        btn.addEventListener('click', () => {
+          modal.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

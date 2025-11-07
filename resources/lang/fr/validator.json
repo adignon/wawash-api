@@ -1,0 +1,43 @@
+{
+  "shared": {
+    "fields": {
+      "phone": "Le numéro de téléphone",
+      "deviceId": "L'identifiant de l'appareil",
+      "otp": "Le code de vérification",
+      "lastname": "Le nom de famille",
+      "firstname": "Le prénom",
+      "email": "L'email",
+      "profileImage": "La photo de profil",
+      "quartier": "le nom du quartier",
+      "commune": "le nom de la commune",
+      "arrondissement": "L'arrondissement",
+      "department": "Le département",
+      "contactFullname": "Le nom & prénom de la personne á contacter",
+      "contactPhone": "Le numéro de téléphone de la personne á contacter",
+      "packageId": "Le pack choisi",
+      "prefereredShipping":"Le type de livraison",
+      "pickingDate":"La date de collecte",
+      "hours":"Les horaires de collecte",
+      "dryingAddon":"L'option de repassage",
+      "orderId":"L'ID de la commande",
+      "coord": {
+        "longitude": "Votre coordonnée de localisation (Longitude)",
+        "latitude": "Votre coordonnée de localisation (Latitude)"
+      }
+    },
+    "messages": {
+      "exists": "{field} n'existe pas.",
+      "alphaNumeric": "{field} ne doit contenir que des lettres et des chiffres.",
+      "required": "{field} est obligatoire",
+      "minLength": "{field} doit contenir au moins {options.minLength} caractères",
+      "maxLength": "{field} ne doit pas dépasser {options.maxLength} caractères",
+      "email": "{field} doit être une adresse e-mail valide",
+      "regex": "{field} n'a pas un format valide",
+      "enum": "{field} contient une valeur non autorisée",
+      "uuid": "{field} doit être un UUID valide",
+      "jwt": "{field} doit être un JWT valide",
+      "file.size": "{field} ne doit pas dépasser {options.size}",
+      "file.extnames": "{field} doit être de type: {options.extnames}"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+    "user:new": {
+        "title": ""
+    },
+    "subscription:new": {},
+    "subscription:created": {},
+    "subscription:paid": {},
+    "order:paid": {},
+    "order:created": {},
+    "order:addons.paid": {},
+    "order:incoming": {},
+    "order:picking": {},
+    "order:first.completed": {}
+}

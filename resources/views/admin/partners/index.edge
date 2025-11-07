@@ -1,0 +1,232 @@
+@layout.admin({ title: 'Candidatures Partenaires', pageTitle: 'Candidatures Partenaires' })
+
+@slot('main')
+  <style>
+    .stats-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .partner-row {
+      transition: all 0.2s;
+    }
+    .partner-row:hover {
+      background-color: #f9fafb;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .badge-approved {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .badge-rejected {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .badge-contacted {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .filter-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 12px;
+    }
+    .filter-tab {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      color: #6b7280;
+      transition: all 0.2s;
+    }
+    .filter-tab:hover {
+      background: #f3f4f6;
+      color: #1f2937;
+    }
+    .filter-tab.active {
+      background: #667eea;
+      color: white;
+    }
+  </style>
+
+  {{-- Statistics --}}
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px;">
+    <div class="stats-card">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="background: #fef3c7; color: #92400e; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+          ⏳
+        </div>
+        <div>
+          <div style="font-size: 13px; color: #6b7280; font-weight: 500;">En attente</div>
+          <div style="font-size: 28px; font-weight: 700; color: #1f2937;">{{ partners.all().filter(p => p.status === 'pending').length }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-card">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="background: #d1fae5; color: #065f46; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+          ✓
+        </div>
+        <div>
+          <div style="font-size: 13px; color: #6b7280; font-weight: 500;">Approuvées</div>
+          <div style="font-size: 28px; font-weight: 700; color: #1f2937;">{{ partners.all().filter(p => p.status === 'approved').length }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-card">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="background: #dbeafe; color: #1e40af; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+          📞
+        </div>
+        <div>
+          <div style="font-size: 13px; color: #6b7280; font-weight: 500;">Contactées</div>
+          <div style="font-size: 28px; font-weight: 700; color: #1f2937;">{{ partners.all().filter(p => p.status === 'contacted').length }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-card">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="background: #fee2e2; color: #991b1b; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+          ✗
+        </div>
+        <div>
+          <div style="font-size: 13px; color: #6b7280; font-weight: 500;">Rejetées</div>
+          <div style="font-size: 28px; font-weight: 700; color: #1f2937;">{{ partners.all().filter(p => p.status === 'rejected').length }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{-- Filter Tabs --}}
+  <div class="filter-tabs">
+    <a href="{{ route('admin.partners.index') }}" class="filter-tab {{ currentStatus === '' ? 'active' : '' }}">
+      Toutes
+    </a>
+    <a href="{{ route('admin.partners.index') }}?status=pending" class="filter-tab {{ currentStatus === 'pending' ? 'active' : '' }}">
+      En attente
+    </a>
+    <a href="{{ route('admin.partners.index') }}?status=contacted" class="filter-tab {{ currentStatus === 'contacted' ? 'active' : '' }}">
+      Contactées
+    </a>
+    <a href="{{ route('admin.partners.index') }}?status=approved" class="filter-tab {{ currentStatus === 'approved' ? 'active' : '' }}">
+      Approuvées
+    </a>
+    <a href="{{ route('admin.partners.index') }}?status=rejected" class="filter-tab {{ currentStatus === 'rejected' ? 'active' : '' }}">
+      Rejetées
+    </a>
+  </div>
+
+  {{-- Partners Table --}}
+  <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;">
+    @if(partners && partners.length > 0)
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead style="background: #f9fafb; border-bottom: 1px solid #e5e7eb;">
+          <tr>
+            <th style="padding: 16px; text-align: left; font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Status</th>
+            <th style="padding: 16px; text-align: left; font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Nom</th>
+            <th style="padding: 16px; text-align: left; font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Téléphone</th>
+            <th style="padding: 16px; text-align: left; font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Type de service</th>
+            <th style="padding: 16px; text-align: left; font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Localisation</th>
+            <th style="padding: 16px; text-align: left; font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Date</th>
+            <th style="padding: 16px; text-align: left; font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @each(partner in partners)
+            <tr class="partner-row" style="border-bottom: 1px solid #e5e7eb;">
+              <td style="padding: 16px;">
+                @if(partner.status === 'pending')
+                  <span class="badge badge-pending">En attente</span>
+                @elseif(partner.status === 'approved')
+                  <span class="badge badge-approved">Approuvée</span>
+                @elseif(partner.status === 'rejected')
+                  <span class="badge badge-rejected">Rejetée</span>
+                @elseif(partner.status === 'contacted')
+                  <span class="badge badge-contacted">Contactée</span>
+                @end
+              </td>
+              <td style="padding: 16px; font-size: 14px; color: #1f2937; font-weight: 600;">{{ partner.fullName }}</td>
+              <td style="padding: 16px; font-size: 14px; color: #1f2937;">
+                <a href="tel:{{ partner.phone }}" style="color: #667eea; text-decoration: none;">{{ partner.phone }}</a>
+              </td>
+              <td style="padding: 16px; font-size: 13px; color: #6b7280;">
+                @if(partner.serviceType === 'launderer')
+                  Blanchisseur
+                @elseif(partner.serviceType === 'pressing')
+                  Pressing
+                @elseif(partner.serviceType === 'delivery')
+                  Livreur
+                @else
+                  Autre
+                @end
+              </td>
+              <td style="padding: 16px; font-size: 13px; color: #6b7280;">{{ partner.location }}</td>
+              <td style="padding: 16px; font-size: 13px; color: #6b7280;">
+                {{ partner.createdAt.toFormat('dd/MM/yyyy') }}
+              </td>
+              <td style="padding: 16px;">
+                <div style="display: flex; gap: 8px;">
+                  <a href="{{ route('admin.partners.show', { id: partner.id }) }}"
+                     style="padding: 6px 12px; background: #667eea; color: white; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600;">
+                    Voir
+                  </a>
+                  <a href="{{ route('admin.partners.edit', { id: partner.id }) }}"
+                     style="padding: 6px 12px; background: #10b981; color: white; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600;">
+                    Modifier
+                  </a>
+                </div>
+              </td>
+            </tr>
+          @end
+        </tbody>
+      </table>
+
+      {{-- Pagination --}}
+      @if(partners.lastPage > 1)
+        <div style="padding: 20px; display: flex; justify-content: center; gap: 8px; border-top: 1px solid #e5e7eb;">
+          @if(partners.currentPage > 1)
+            <a href="{{ route('admin.partners.index') }}?page={{ partners.currentPage - 1 }}{{ currentStatus ? '&status=' + currentStatus : '' }}"
+               style="padding: 8px 16px; background: #f3f4f6; color: #374151; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600;">
+              Précédent
+            </a>
+          @end
+
+          <span style="padding: 8px 16px; color: #6b7280; font-size: 14px; font-weight: 600;">
+            Page {{ partners.currentPage }} sur {{ partners.lastPage }}
+          </span>
+
+          @if(partners.currentPage < partners.lastPage)
+            <a href="{{ route('admin.partners.index') }}?page={{ partners.currentPage + 1 }}{{ currentStatus ? '&status=' + currentStatus : '' }}"
+               style="padding: 8px 16px; background: #f3f4f6; color: #374151; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600;">
+              Suivant
+            </a>
+          @end
+        </div>
+      @end
+    @else
+      <div style="padding: 60px 20px; text-align: center; color: #9ca3af;">
+        <div style="font-size: 64px; margin-bottom: 16px;">🤝</div>
+        <div style="font-size: 18px; font-weight: 600; color: #6b7280; margin-bottom: 8px;">Aucune candidature</div>
+        <div style="font-size: 14px;">Vous n'avez reçu aucune candidature de partenaire pour le moment.</div>
+      </div>
+    @end
+  </div>
+@end
+@end

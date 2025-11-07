@@ -1,0 +1,313 @@
+@layout.admin({ title: 'Order Scheduling - List', pageTitle: 'Order Scheduling - List View' })
+
+@slot('topbarActions')
+  <div style="display: flex; gap: 12px;">
+    <a href="{{ route('admin.scheduling.calendar') }}" class="btn btn-secondary">
+      <span>📅</span>
+      <span>Calendar View</span>
+    </a>
+    <a href="{{ route('admin.delivery.assignments') }}" class="btn btn-primary">
+      <span>🚚</span>
+      <span>Delivery Assignments</span>
+    </a>
+  </div>
+@end
+
+@slot('main')
+  <style>
+    .week-section {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .week-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .week-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .week-badge {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .order-item {
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .order-item:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+      transform: translateX(4px);
+    }
+    .order-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .order-id {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .order-status {
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-CREATED { background: #dbeafe; color: #1e40af; }
+    .status-STARTED { background: #fef3c7; color: #92400e; }
+    .status-PICKED { background: #e0e7ff; color: #4338ca; }
+    .status-WASHING { background: #e0e7ff; color: #4338ca; }
+    .status-READY { background: #d1fae5; color: #065f46; }
+    .status-DELIVERED { background: #d1fae5; color: #065f46; }
+    .order-details {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .detail-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+    .detail-value {
+      color: #1f2937;
+      font-weight: 500;
+    }
+    .collapsible-section {
+      background: white;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .collapsible-header {
+      padding: 16px 24px;
+      background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .collapsible-header:hover {
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    }
+    .month-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #374151;
+    }
+    .collapsible-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .collapsible-content.open {
+      max-height: 10000px;
+    }
+    .week-subsection {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 20px 24px;
+    }
+    .week-subsection:last-child {
+      border-bottom: none;
+    }
+    .week-subsection-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .week-subsection-header:hover {
+      background: #f9fafb;
+    }
+    .week-subsection-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #6b7280;
+    }
+    .expand-icon {
+      font-size: 12px;
+      color: #9ca3af;
+      transition: transform 0.3s;
+    }
+    .expand-icon.rotated {
+      transform: rotate(180deg);
+    }
+    .week-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .week-content.open {
+      max-height: 5000px;
+    }
+  </style>
+
+  {{-- Current Week Orders --}}
+  <div class="week-section">
+    <div class="week-header">
+      <div class="week-title">📍 Current Week - {{ currentWeekLabel }}</div>
+      <div class="week-badge">{{ currentWeekOrders.length }} orders</div>
+    </div>
+
+    @if(currentWeekOrders.length > 0)
+      @each(order in currentWeekOrders)
+        <a href="{{ route('admin.scheduling.order.details', { id: order.id }) }}" style="text-decoration: none;">
+          <div class="order-item">
+            <div class="order-header-row">
+              <div class="order-id">#{{ order.orderId }}</div>
+              <div class="order-status status-{{ order.status }}">{{ order.status }}</div>
+            </div>
+            <div class="order-details">
+              <div class="detail-item">
+                <div class="detail-label">Customer</div>
+                <div class="detail-value">{{ order.user?.firstname || '' }} {{ order.user?.lastname || 'N/A' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Merchant</div>
+                <div class="detail-value">{{ order.merchant?.name || 'Not assigned' }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Picking Time</div>
+                <div class="detail-value" style="color: #667eea; font-weight: 600;">
+                  {{ order.pickingHours && order.pickingHours.length > 0 ? '⏰ ' + order.pickingHours[0] : 'Not set' }}
+                </div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Delivery Date</div>
+                <div class="detail-value">{{ order.deliveryDate.toFormat('dd MMM yyyy HH:mm') }}</div>
+              </div>
+            </div>
+          </div>
+        </a>
+      @end
+    @else
+      <div style="text-align: center; padding: 40px; color: #9ca3af;">
+        No orders scheduled for this week
+      </div>
+    @end
+  </div>
+
+  {{-- Past Orders Grouped by Month and Week --}}
+  @if(groupedPastOrders.length > 0)
+    <div style="margin-top: 32px;">
+      <h3 style="font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 16px;">📚 Past Orders</h3>
+
+      @each(month in groupedPastOrders)
+        <div class="collapsible-section">
+          <div class="collapsible-header" onclick="toggleMonth('month-{{ month.monthKey }}')">
+            <div class="month-title">{{ month.monthLabel }}</div>
+            <span class="expand-icon" id="month-{{ month.monthKey }}-icon">▼</span>
+          </div>
+          <div class="collapsible-content" id="month-{{ month.monthKey }}-content">
+            @each(week in month.weeks)
+              <div class="week-subsection">
+                <div class="week-subsection-header" onclick="toggleWeek('week-{{ week.weekId }}', event)">
+                  <div class="week-subsection-title">{{ week.weekLabel }}</div>
+                  <div style="display: flex; gap: 12px; align-items: center;">
+                    <span style="font-size: 12px; color: #9ca3af;">{{ week.orders.length }} orders</span>
+                    <span class="expand-icon" id="week-{{ week.weekId }}-icon">▼</span>
+                  </div>
+                </div>
+                <div class="week-content" id="week-{{ week.weekId }}-content">
+                  @each(order in week.orders)
+                    <a href="{{ route('admin.scheduling.order.details', { id: order.id }) }}" style="text-decoration: none;">
+                      <div class="order-item">
+                        <div class="order-header-row">
+                          <div class="order-id">#{{ order.orderId }}</div>
+                          <div class="order-status status-{{ order.status }}">{{ order.status }}</div>
+                        </div>
+                        <div class="order-details">
+                          <div class="detail-item">
+                            <div class="detail-label">Customer</div>
+                            <div class="detail-value">{{ order.user?.firstname || '' }} {{ order.user?.lastname || 'N/A' }}</div>
+                          </div>
+                          <div class="detail-item">
+                            <div class="detail-label">Merchant</div>
+                            <div class="detail-value">{{ order.merchant?.name || 'Not assigned' }}</div>
+                          </div>
+                          <div class="detail-item">
+                            <div class="detail-label">Picking Time</div>
+                            <div class="detail-value" style="color: #667eea; font-weight: 600;">
+                              {{ order.pickingHours && order.pickingHours.length > 0 ? '⏰ ' + order.pickingHours[0] : 'Not set' }}
+                            </div>
+                          </div>
+                          <div class="detail-item">
+                            <div class="detail-label">Delivery Date</div>
+                            <div class="detail-value">{{ order.deliveryDate.toFormat('dd MMM yyyy') }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  @end
+                </div>
+              </div>
+            @end
+          </div>
+        </div>
+      @end
+    </div>
+  @end
+
+  <script>
+    function toggleMonth(monthId) {
+      const content = document.getElementById(monthId + '-content');
+      const icon = document.getElementById(monthId + '-icon');
+
+      if (content.classList.contains('open')) {
+        content.classList.remove('open');
+        icon.classList.remove('rotated');
+      } else {
+        content.classList.add('open');
+        icon.classList.add('rotated');
+      }
+    }
+
+    function toggleWeek(weekId, event) {
+      event.stopPropagation();
+      const content = document.getElementById(weekId + '-content');
+      const icon = document.getElementById(weekId + '-icon');
+
+      if (content.classList.contains('open')) {
+        content.classList.remove('open');
+        icon.classList.remove('rotated');
+      } else {
+        content.classList.add('open');
+        icon.classList.add('rotated');
+      }
+    }
+  </script>
+@end
+@end

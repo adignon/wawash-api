@@ -1,0 +1,216 @@
+@layout.admin({ title: 'No Permissions', pageTitle: 'Access Restricted' })
+
+@slot('main')
+  <style>
+    .no-permission-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .no-permission-icon {
+      font-size: 120px;
+      margin-bottom: 24px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .no-permission-title {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 16px;
+    }
+
+    .no-permission-message {
+      font-size: 16px;
+      color: #6b7280;
+      max-width: 600px;
+      margin: 0 auto 32px;
+      line-height: 1.6;
+    }
+
+    .permission-info-card {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      max-width: 700px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .permission-info-section {
+      margin-bottom: 24px;
+    }
+
+    .permission-info-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .permission-info-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .permission-info-content {
+      font-size: 14px;
+      color: #4b5563;
+      line-height: 1.6;
+    }
+
+    .permission-list {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0 0 0;
+    }
+
+    .permission-list li {
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .permission-list li:before {
+      content: "✓";
+      color: #10b981;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .contact-admin-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.3);
+    }
+
+    .contact-admin-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 12px -1px rgba(102, 126, 234, 0.4);
+    }
+
+    .settings-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #667eea;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 16px;
+      transition: all 0.2s;
+    }
+
+    .settings-link:hover {
+      color: #5568d3;
+      text-decoration: underline;
+    }
+  </style>
+
+  <div class="no-permission-container">
+    <div class="no-permission-icon">🔒</div>
+    <h1 class="no-permission-title">No Permissions Assigned</h1>
+    <p class="no-permission-message">
+      Your administrator account has been created, but you haven't been assigned any permissions yet.
+      Please contact a super administrator to grant you access to the system.
+    </p>
+
+    <div class="permission-info-card">
+      <div class="permission-info-section">
+        <div class="permission-info-title">
+          <span>👤</span>
+          <span>Your Account</span>
+        </div>
+        <div class="permission-info-content">
+          <strong>Name:</strong> {{ user.firstname || 'Admin' }} {{ user.lastname || '' }}<br>
+          <strong>Email:</strong> {{ user.email || user.phone }}<br>
+          <strong>Role:</strong> Administrator<br>
+          <strong>Status:</strong> <span style="color: #f59e0b;">⚠️ Pending Permissions</span>
+        </div>
+      </div>
+
+      <div class="permission-info-section">
+        <div class="permission-info-title">
+          <span>🔐</span>
+          <span>What You Can Do</span>
+        </div>
+        <div class="permission-info-content">
+          Even without specific permissions, you can still:
+          <ul class="permission-list">
+            <li>Access your account settings</li>
+            <li>Enable two-factor authentication (2FA)</li>
+            <li>Update your profile information</li>
+            <li>Log out securely</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="permission-info-section">
+        <div class="permission-info-title">
+          <span>📋</span>
+          <span>Available Permissions</span>
+        </div>
+        <div class="permission-info-content">
+          A super administrator can grant you access to:
+          <ul class="permission-list">
+            <li>Dashboard & Analytics</li>
+            <li>User Management</li>
+            <li>Merchant Management</li>
+            <li>Order & Subscription Management</li>
+            <li>Scheduling & Delivery</li>
+            <li>Wallet & Financial Operations</li>
+            <li>System Configuration</li>
+            <li>And more...</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="permission-info-section">
+        <div class="permission-info-title">
+          <span>💡</span>
+          <span>Next Steps</span>
+        </div>
+        <div class="permission-info-content">
+          1. Contact your super administrator<br>
+          2. Request the specific permissions you need<br>
+          3. Wait for permissions to be assigned<br>
+          4. Refresh this page or log in again to access the system
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 32px;">
+        <a href="{{ route('admin.settings.index') }}" class="settings-link">
+          ⚙️ Go to Account Settings
+        </a>
+      </div>
+    </div>
+  </div>
+@end
+@end

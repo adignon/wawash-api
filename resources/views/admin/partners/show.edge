@@ -1,0 +1,204 @@
+@layout.admin({ title: 'Détails Candidature - ' + partner.fullName, pageTitle: 'Détails de la Candidature' })
+
+@slot('main')
+  <style>
+    .detail-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .detail-row {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+    .detail-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #6b7280;
+    }
+    .detail-value {
+      font-size: 14px;
+      color: #1f2937;
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .badge-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .badge-approved {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .badge-rejected {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .badge-contacted {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #5568d3;
+    }
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+    .btn-success:hover {
+      background: #059669;
+    }
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #374151;
+    }
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+  </style>
+
+  {{-- Back Button --}}
+  <div style="margin-bottom: 20px;">
+    <a href="{{ route('admin.partners.index') }}" style="color: #667eea; text-decoration: none; font-size: 14px; font-weight: 600;">
+      ← Retour à la liste
+    </a>
+  </div>
+
+  {{-- Partner Information Card --}}
+  <div class="detail-card">
+    <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 24px;">
+      <div>
+        <h2 style="font-size: 24px; font-weight: 700; color: #1f2937; margin-bottom: 8px;">{{ partner.fullName }}</h2>
+        <div>
+          @if(partner.status === 'pending')
+            <span class="badge badge-pending">En attente</span>
+          @elseif(partner.status === 'approved')
+            <span class="badge badge-approved">Approuvée</span>
+          @elseif(partner.status === 'rejected')
+            <span class="badge badge-rejected">Rejetée</span>
+          @elseif(partner.status === 'contacted')
+            <span class="badge badge-contacted">Contactée</span>
+          @end
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-row">
+      <div class="detail-label">Téléphone / WhatsApp</div>
+      <div class="detail-value">
+        <a href="tel:{{ partner.phone }}" style="color: #667eea; text-decoration: none;">{{ partner.phone }}</a>
+        <a href="https://wa.me/{{ partner.phone.replace(/[^0-9]/g, '') }}" target="_blank" style="margin-left: 12px; color: #10b981; text-decoration: none;">
+          💬 Contacter sur WhatsApp
+        </a>
+      </div>
+    </div>
+
+    <div class="detail-row">
+      <div class="detail-label">Type de service</div>
+      <div class="detail-value">
+        @if(partner.serviceType === 'launderer')
+          Blanchisseur
+        @elseif(partner.serviceType === 'pressing')
+          Pressing
+        @elseif(partner.serviceType === 'delivery')
+          Livreur
+        @else
+          Autre
+        @end
+      </div>
+    </div>
+
+    <div class="detail-row">
+      <div class="detail-label">Localisation</div>
+      <div class="detail-value">{{ partner.location }}</div>
+    </div>
+
+    <div class="detail-row">
+      <div class="detail-label">Date de candidature</div>
+      <div class="detail-value">{{ partner.createdAt.toFormat('dd/MM/yyyy à HH:mm') }}</div>
+    </div>
+
+    @if(partner.experience)
+      <div class="detail-row">
+        <div class="detail-label">Expérience / Équipement</div>
+        <div class="detail-value" style="white-space: pre-wrap;">{{ partner.experience }}</div>
+      </div>
+    @end
+
+    <div class="detail-row">
+      <div class="detail-label">Motivation</div>
+      <div class="detail-value" style="white-space: pre-wrap;">{{ partner.motivation }}</div>
+    </div>
+
+    @if(partner.adminNotes)
+      <div class="detail-row">
+        <div class="detail-label">Notes administratives</div>
+        <div class="detail-value" style="white-space: pre-wrap; background: #fef3c7; padding: 12px; border-radius: 8px;">{{ partner.adminNotes }}</div>
+      </div>
+    @end
+  </div>
+
+  {{-- Action Buttons --}}
+  <div class="action-buttons">
+    <a href="{{ route('admin.partners.edit', { id: partner.id }) }}" class="btn btn-primary">
+      Modifier le statut
+    </a>
+
+    @if(partner.status === 'pending')
+      <a href="https://wa.me/{{ partner.phone.replace(/[^0-9]/g, '') }}?text=Bonjour {{ partner.fullName }}, nous avons bien reçu votre candidature pour devenir partenaire WaWash..." target="_blank" class="btn btn-success">
+        💬 Contacter via WhatsApp
+      </a>
+    @end
+
+    <form action="{{ route('admin.partners.delete', { id: partner.id }) }}" method="POST" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette candidature ?');">
+      {{ csrfField() }}
+      <button type="submit" class="btn btn-danger">
+        Supprimer
+      </button>
+    </form>
+
+    <a href="{{ route('admin.partners.index') }}" class="btn btn-secondary">
+      Annuler
+    </a>
+  </div>
+@end
+@end

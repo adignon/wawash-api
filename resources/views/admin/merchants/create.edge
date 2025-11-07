@@ -1,0 +1,107 @@
+@layout.admin({ title: 'Create Merchant', pageTitle: 'Create New Merchant' })
+
+@slot('topbarActions')
+  <a href="{{ route('admin.merchants.index') }}" class="btn btn-secondary">
+    <span>←</span>
+    <span>Back</span>
+  </a>
+@end
+
+@slot('main')
+  <div class="card" style="max-width: 800px;">
+    <div class="card-header">
+      <h2 class="card-title">Create New Merchant</h2>
+    </div>
+
+    <form action="{{ route('admin.merchants.store') }}" method="POST">
+      {{ csrfField() }}
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label for="name" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+          Merchant Name <span style="color: #ef4444;">*</span>
+        </label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          value="{{ old('name') || '' }}"
+          required
+          placeholder="e.g., Ets Cleaner"
+          style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;"
+          onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+          onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+        >
+        <span style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">The business name of the merchant</span>
+        @if(errors?.name)
+          <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.name }}</span>
+        @end
+      </div>
+
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label for="phones" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+          Manager Phone Numbers <span style="color: #ef4444;">*</span>
+        </label>
+        <input
+          type="text"
+          id="phones"
+          name="phones"
+          value="{{ old('phones') || '' }}"
+          required
+          placeholder="+22901XXXXXXXX, +22901YYYYYYYY"
+          style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s; font-family: monospace;"
+          onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+          onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+        >
+        <span style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">
+          Comma-separated phone numbers (format: +22901XXXXXXXX). These are the manager contacts who can access orders.
+        </span>
+        @if(errors?.phones)
+          <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.phones }}</span>
+        @end
+      </div>
+
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label for="washingType" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+          Washing Type <span style="color: #ef4444;">*</span>
+        </label>
+        <select
+          id="washingType"
+          name="washingType"
+          required
+          style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s; background: white;"
+          onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+          onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+        >
+          <option value="">Select washing type...</option>
+          <option value="MANUAL" {{ old('washingType') === 'MANUAL' ? 'selected' : '' }}>🤲 Manual Washing</option>
+          <option value="MACHINE" {{ old('washingType') === 'MACHINE' ? 'selected' : '' }}>🌀 Machine Washing</option>
+        </select>
+        <span style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">The type of washing service provided by this merchant</span>
+        @if(errors?.washingType)
+          <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.washingType }}</span>
+        @end
+      </div>
+
+      <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+        <div style="display: flex; gap: 12px;">
+          <div style="font-size: 20px;">💡</div>
+          <div>
+            <div style="font-weight: 600; color: #92400e; margin-bottom: 4px;">Important Note</div>
+            <div style="font-size: 13px; color: #78350f;">
+              • Phone numbers must be in format: <strong>+22901XXXXXXXX</strong><br>
+              • Separate multiple phone numbers with commas<br>
+              • These phone numbers will be used by managers to log in and manage orders<br>
+              • Initial balance will be set to 0 FCFA
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+        <a href="{{ route('admin.merchants.index') }}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">Create Merchant</button>
+      </div>
+    </form>
+  </div>
+@end
+@end

@@ -1,0 +1,131 @@
+@layout.admin({ title: 'Messages de Contact', pageTitle: 'Messages de Contact' })
+
+@slot('main')
+  <style>
+    .stats-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .contact-row {
+      transition: all 0.2s;
+    }
+    .contact-row:hover {
+      background-color: #f9fafb;
+    }
+    .contact-row.unread {
+      background-color: #eff6ff;
+      font-weight: 600;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-unread {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .badge-read {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+  </style>
+
+  {{-- Statistics --}}
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 24px;">
+    <div class="stats-card">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="background: #dbeafe; color: #1e40af; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+          📧
+        </div>
+        <div>
+          <div style="font-size: 13px; color: #6b7280; font-weight: 500;">Total Messages</div>
+          <div style="font-size: 28px; font-weight: 700; color: #1f2937;">{{ totalCount }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-card">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="background: #fef3c7; color: #92400e; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+          🔔
+        </div>
+        <div>
+          <div style="font-size: 13px; color: #6b7280; font-weight: 500;">Non lus</div>
+          <div style="font-size: 28px; font-weight: 700; color: #1f2937;">{{ unreadCount }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{-- Contacts Table --}}
+  <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;">
+    @if(contacts && contacts.length > 0)
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead style="background: #f9fafb; border-bottom: 1px solid #e5e7eb;">
+          <tr>
+            <th style="padding: 16px; text-align: left; font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Status</th>
+            <th style="padding: 16px; text-align: left; font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Nom</th>
+            <th style="padding: 16px; text-align: left; font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Email</th>
+            <th style="padding: 16px; text-align: left; font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Message</th>
+            <th style="padding: 16px; text-align: left; font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Date</th>
+            <th style="padding: 16px; text-align: left; font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @each(contact in contacts)
+            <tr class="contact-row {{ contact.isRead ? '' : 'unread' }}" style="border-bottom: 1px solid #e5e7eb;">
+              <td style="padding: 16px;">
+                <span class="badge {{ contact.isRead ? 'badge-read' : 'badge-unread' }}">
+                  {{ contact.isRead ? 'Lu' : 'Non lu' }}
+                </span>
+              </td>
+              <td style="padding: 16px; font-size: 14px; color: #1f2937;">{{ contact.name }}</td>
+              <td style="padding: 16px; font-size: 14px; color: #1f2937;">{{ contact.email }}</td>
+              <td style="padding: 16px; font-size: 13px; color: #6b7280; max-width: 300px;">
+                {{ contact.message.substring(0, 80) }}{{ contact.message.length > 80 ? '...' : '' }}
+              </td>
+              <td style="padding: 16px; font-size: 13px; color: #6b7280;">
+                {{ contact.createdAt.toFormat('dd/MM/yyyy HH:mm') }}
+              </td>
+              <td style="padding: 16px;">
+                <div style="display: flex; gap: 8px;">
+                  <a href="{{ route('admin.contacts.show', { id: contact.id }) }}"
+                     style="padding: 6px 12px; background: #667eea; color: white; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600;">
+                    Voir
+                  </a>
+
+                  <form action="{{ route('admin.contacts.toggle-read', { id: contact.id }) }}" method="POST" style="display: inline;">
+                    {{ csrfField() }}
+                    <button type="submit" style="padding: 6px 12px; background: #f3f4f6; color: #374151; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">
+                      {{ contact.isRead ? 'Marquer non lu' : 'Marquer lu' }}
+                    </button>
+                  </form>
+
+                  <form action="{{ route('admin.contacts.delete', { id: contact.id }) }}" method="POST" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce message ?');">
+                    {{ csrfField() }}
+                    <input type="hidden" name="_method" value="DELETE" />
+                    <button type="submit" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">
+                      Supprimer
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          @end
+        </tbody>
+      </table>
+    @else
+      <div style="padding: 60px 20px; text-align: center; color: #9ca3af;">
+        <div style="font-size: 64px; margin-bottom: 16px;">📭</div>
+        <div style="font-size: 18px; font-weight: 600; color: #6b7280; margin-bottom: 8px;">Aucun message</div>
+        <div style="font-size: 14px;">Vous n'avez reçu aucun message de contact pour le moment.</div>
+      </div>
+    @end
+  </div>
+@end
+@end

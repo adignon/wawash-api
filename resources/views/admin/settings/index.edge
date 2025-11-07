@@ -1,0 +1,372 @@
+@layout.admin({ title: 'Settings', pageTitle: 'Account Settings' })
+
+@slot('main')
+  <style>
+    .tabs-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .tabs-header {
+      display: flex;
+      border-bottom: 2px solid #e5e7eb;
+      background: #f9fafb;
+    }
+
+    .tab-button {
+      padding: 16px 32px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: #6b7280;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      top: 2px;
+    }
+
+    .tab-button:hover {
+      color: #667eea;
+      background: white;
+    }
+
+    .tab-button.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+      background: white;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 32px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .setting-card {
+      background: #f9fafb;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .setting-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .setting-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .setting-description {
+      color: #6b7280;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .status-badge {
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .status-enabled {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-disabled {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    #qrCodeSection {
+      text-align: center;
+      padding: 24px;
+      background: white;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    #qrCodeImage {
+      max-width: 300px;
+      margin: 20px auto;
+      display: block;
+    }
+
+    .recovery-codes {
+      background: #fef3c7;
+      border: 2px solid #f59e0b;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .recovery-codes-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .recovery-code {
+      background: white;
+      padding: 10px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-weight: 600;
+      text-align: center;
+      border: 1px solid #d97706;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.3s;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .alert {
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .alert-warning {
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      color: #92400e;
+    }
+
+    .alert-success {
+      background: #d1fae5;
+      border: 1px solid #10b981;
+      color: #065f46;
+    }
+  </style>
+
+  <div class="tabs-container">
+    <div class="tabs-header">
+      <button class="tab-button active" onclick="switchTab('security')">
+        🔒 Security & 2FA
+      </button>
+      <button class="tab-button" onclick="switchTab('profile')">
+        👤 Profile
+      </button>
+      <button class="tab-button" onclick="switchTab('notifications')">
+        🔔 Notifications
+      </button>
+    </div>
+
+    {{-- Security Tab --}}
+    <div id="security-tab" class="tab-content active">
+      <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">Security Settings</h2>
+      <p style="color: #6b7280; margin-bottom: 32px;">Manage your account security and two-factor authentication</p>
+
+      {{-- Two-Factor Authentication --}}
+      <div class="setting-card">
+        <div class="setting-header">
+          <div>
+            <div class="setting-title">🔐 Two-Factor Authentication (2FA)</div>
+          </div>
+          @if(twoFactorEnabled)
+            <span class="status-badge status-enabled">✓ Enabled</span>
+          @else
+            <span class="status-badge status-disabled">✗ Disabled</span>
+          @end
+        </div>
+
+        <div class="setting-description">
+          Add an extra layer of security to your account by requiring a verification code from your mobile device when signing in.
+        </div>
+
+        @if(!twoFactorEnabled)
+          <div class="alert alert-warning">
+            <strong>⚠️ Recommendation:</strong> Enable 2FA to protect your account from unauthorized access.
+          </div>
+
+          <button onclick="enable2FA()" class="btn btn-primary" id="enable2FABtn">
+            <span>🔒</span>
+            <span>Enable 2FA</span>
+          </button>
+
+          <div id="qrCodeSection" style="display: none;">
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">Scan QR Code</h3>
+            <p style="color: #6b7280; margin-bottom: 16px;">Scan this QR code with Google Authenticator, Authy, or any TOTP app</p>
+            <img id="qrCodeImage" alt="QR Code" />
+
+            <div style="margin: 20px 0;">
+              <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">Or enter this secret manually:</p>
+              <code id="secretCode" style="background: #f3f4f6; padding: 12px 20px; border-radius: 6px; display: inline-block; font-size: 16px; font-weight: 600;"></code>
+            </div>
+
+            <div class="input-group" style="max-width: 300px; margin: 32px auto 0;">
+              <label>Enter 6-digit code from your app</label>
+              <input type="text" id="verifyToken" placeholder="000000" maxlength="6" pattern="[0-9]{6}" />
+            </div>
+
+            <button onclick="verify2FA()" class="btn btn-primary">
+              <span>✓</span>
+              <span>Verify & Enable</span>
+            </button>
+          </div>
+
+          <div id="recoveryCodesSection" style="display: none;">
+            <div class="recovery-codes">
+              <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px; color: #92400e;">🔑 Recovery Codes</h3>
+              <p style="color: #92400e; font-size: 14px; margin-bottom: 12px;">Save these recovery codes in a safe place. Each code can only be used once.</p>
+              <div class="recovery-codes-grid" id="recoveryCodesList"></div>
+              <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 20px;">
+                Done
+              </button>
+            </div>
+          </div>
+        @else
+          <div class="alert alert-success">
+            <strong>✓ 2FA is active:</strong> Your account is protected with two-factor authentication.
+          </div>
+
+          <form method="POST" action="{{ route('admin.settings.2fa.disable') }}" onsubmit="return confirm('Are you sure you want to disable 2FA? This will make your account less secure.')">
+            {{ csrfField() }}
+            <div class="input-group" style="max-width: 400px;">
+              <label>Confirm your password to disable 2FA</label>
+              <input type="password" name="password" placeholder="Enter your password" required />
+            </div>
+            <button type="submit" class="btn btn-danger">
+              <span>🔓</span>
+              <span>Disable 2FA</span>
+            </button>
+          </form>
+        @end
+      </div>
+    </div>
+
+    {{-- Profile Tab --}}
+    <div id="profile-tab" class="tab-content">
+      <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">Profile Settings</h2>
+      <p style="color: #6b7280; margin-bottom: 32px;">Update your personal information</p>
+
+      <div class="setting-card">
+        <div class="setting-title">Profile Information</div>
+        <p style="color: #6b7280; font-size: 14px; margin-top: 8px;">Coming soon...</p>
+      </div>
+    </div>
+
+    {{-- Notifications Tab --}}
+    <div id="notifications-tab" class="tab-content">
+      <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">Notification Preferences</h2>
+      <p style="color: #6b7280; margin-bottom: 32px;">Manage how you receive notifications</p>
+
+      <div class="setting-card">
+        <div class="setting-title">Email Notifications</div>
+        <p style="color: #6b7280; font-size: 14px; margin-top: 8px;">Coming soon...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tab) {
+      // Remove active class from all tabs
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      // Add active class to selected tab
+      document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+      document.getElementById(`${tab}-tab`).classList.add('active');
+    }
+
+    async function enable2FA() {
+      try {
+        const response = await fetch('{{ route("admin.settings.2fa.enable") }}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.qrCode) {
+          document.getElementById('qrCodeImage').src = data.qrCode;
+          document.getElementById('secretCode').textContent = data.secret;
+          document.getElementById('enable2FABtn').style.display = 'none';
+          document.getElementById('qrCodeSection').style.display = 'block';
+        }
+      } catch (error) {
+        alert('Failed to generate 2FA setup. Please try again.');
+      }
+    }
+
+    async function verify2FA() {
+      const token = document.getElementById('verifyToken').value;
+
+      if (token.length !== 6) {
+        alert('Please enter a 6-digit code');
+        return;
+      }
+
+      try {
+        const response = await fetch('{{ route("admin.settings.2fa.verify") }}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ token })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Show recovery codes
+          const codesList = document.getElementById('recoveryCodesList');
+          codesList.innerHTML = data.recoveryCodes.map(code =>
+            `<div class="recovery-code">${code}</div>`
+          ).join('');
+
+          document.getElementById('qrCodeSection').style.display = 'none';
+          document.getElementById('recoveryCodesSection').style.display = 'block';
+        } else {
+          alert(data.error || 'Invalid code. Please try again.');
+        }
+      } catch (error) {
+        alert('Verification failed. Please try again.');
+      }
+    }
+  </script>
+@end
+@end

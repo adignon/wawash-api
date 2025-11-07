@@ -1,0 +1,286 @@
+@layout.admin({ title: 'Withdraw', pageTitle: 'Withdraw Funds' })
+
+@slot('topbarActions')
+  <a href="{{ route('admin.wallet.dashboard') }}" class="btn btn-secondary">
+    <span>←</span>
+    <span>Back to Wallet</span>
+  </a>
+@end
+
+@slot('main')
+  <style>
+    .balance-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 16px;
+      padding: 28px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    .balance-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    }
+
+    .withdraw-form {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      margin-bottom: 32px;
+    }
+
+    .history-item {
+      transition: all 0.2s ease;
+    }
+
+    .history-item:hover {
+      background: #f9fafb;
+      transform: translateX(4px);
+    }
+  </style>
+
+  {{-- Balance Overview --}}
+  <div class="balance-card">
+    <div style="position: relative; z-index: 1;">
+      <div style="font-size: 16px; opacity: 0.9; margin-bottom: 12px; font-weight: 500;">💰 Available Balance</div>
+      <div style="font-size: 48px; font-weight: 700; margin-bottom: 8px;">
+        {{ availableBalance.toLocaleString() }} <span style="font-size: 24px; opacity: 0.9;">FCFA</span>
+      </div>
+      <div style="display: flex; gap: 32px; font-size: 14px; opacity: 0.9; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.2);">
+        <div>
+          <span style="opacity: 0.8;">Frozen:</span>
+          <strong>{{ totalFrozenBalance.toLocaleString() }} FCFA</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{-- Withdrawal Form --}}
+  <div class="withdraw-form">
+    <h2 style="font-size: 24px; font-weight: 700; color: #1f2937; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 32px;">💸</span>
+      Create Withdrawal
+    </h2>
+
+    <form action="{{ route('admin.wallet.withdraw.store') }}" method="POST">
+      {{ csrfField() }}
+
+      <div style="margin-bottom: 24px;">
+        <label for="amount" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+          Amount <span style="color: #ef4444;">*</span>
+        </label>
+        <div style="position: relative;">
+          <input
+            type="number"
+            id="amount"
+            name="amount"
+            value="{{ old('amount') || '' }}"
+            required
+            min="1"
+            max="{{ availableBalance }}"
+            placeholder="Enter amount"
+            style="width: 100%; padding: 16px 80px 16px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 18px; font-weight: 600; outline: none; transition: all 0.3s;"
+            onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+            onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+          >
+          <div style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 16px; font-weight: 600; color: #6b7280;">
+            FCFA
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+          <button type="button" onclick="document.getElementById('amount').value = 10000" style="padding: 6px 12px; background: #f3f4f6; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; color: #374151; cursor: pointer;">
+            10,000
+          </button>
+          <button type="button" onclick="document.getElementById('amount').value = 50000" style="padding: 6px 12px; background: #f3f4f6; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; color: #374151; cursor: pointer;">
+            50,000
+          </button>
+          <button type="button" onclick="document.getElementById('amount').value = 100000" style="padding: 6px 12px; background: #f3f4f6; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; color: #374151; cursor: pointer;">
+            100,000
+          </button>
+          <button type="button" onclick="document.getElementById('amount').value = {{ availableBalance }}" style="padding: 6px 12px; background: #f3f4f6; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; color: #374151; cursor: pointer;">
+            All ({{ availableBalance.toLocaleString() }})
+          </button>
+        </div>
+        @if(errors?.amount)
+          <span style="color: #ef4444; font-size: 13px; margin-top: 6px; display: block;">{{ errors?.amount }}</span>
+        @end
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <label for="receivingAddress" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+          Receiving Address <span style="color: #ef4444;">*</span>
+        </label>
+        <input
+          type="text"
+          id="receivingAddress"
+          name="receivingAddress"
+          value="{{ old('receivingAddress') || '' }}"
+          required
+          placeholder="+22901XXXXXXXX or account details"
+          style="width: 100%; padding: 14px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 15px; outline: none; transition: all 0.3s; font-family: monospace;"
+          onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+          onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+        >
+        <span style="color: #6b7280; font-size: 12px; margin-top: 6px; display: block;">
+          Mobile money number or bank account details
+        </span>
+        @if(errors?.receivingAddress)
+          <span style="color: #ef4444; font-size: 13px; margin-top: 6px; display: block;">{{ errors?.receivingAddress }}</span>
+        @end
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <label for="comment" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+          Comment (Optional)
+        </label>
+        <textarea
+          id="comment"
+          name="comment"
+          rows="3"
+          placeholder="Add a note about this withdrawal..."
+          style="width: 100%; padding: 14px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.3s; resize: vertical;"
+          onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+          onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+        >{{ old('comment') || '' }}</textarea>
+        @if(errors?.comment)
+          <span style="color: #ef4444; font-size: 13px; margin-top: 6px; display: block;">{{ errors?.comment }}</span>
+        @end
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <label for="otp" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+          Two-Factor Authentication Code <span style="color: #ef4444;">*</span>
+        </label>
+        <input
+          type="text"
+          id="otp"
+          name="otp"
+          value="{{ old('otp') || '' }}"
+          required
+          maxlength="6"
+          placeholder="Enter 6-digit code from your authenticator app"
+          style="width: 100%; padding: 14px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 18px; outline: none; transition: all 0.3s; font-family: monospace; letter-spacing: 4px; text-align: center; font-weight: 600;"
+          onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+          onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+          oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 6);"
+        >
+        <span style="color: #6b7280; font-size: 12px; margin-top: 6px; display: block;">
+          🔐 Enter the 6-digit code from your Google Authenticator app
+        </span>
+        @if(errors?.otp)
+          <span style="color: #ef4444; font-size: 13px; margin-top: 6px; display: block;">{{ errors?.otp }}</span>
+        @end
+      </div>
+
+      <div style="background: #dbeafe; border-left: 4px solid #3b82f6; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+        <div style="display: flex; gap: 12px;">
+          <div style="font-size: 20px;">ℹ️</div>
+          <div>
+            <div style="font-weight: 600; color: #1e40af; margin-bottom: 4px;">Withdrawal Information</div>
+            <div style="font-size: 13px; color: #1e3a8a;">
+              • Processing time: 24-48 hours<br>
+              • Minimum withdrawal: 1,000 FCFA<br>
+              • Network fees may apply<br>
+              • Ensure receiving address is correct
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px;">
+        <button type="submit" class="btn btn-primary" style="flex: 1; padding: 14px; font-size: 16px; font-weight: 600;">
+          💸 Request Withdrawal
+        </button>
+      </div>
+    </form>
+  </div>
+
+  {{-- Withdrawal History --}}
+  <div style="background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+    <h3 style="font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 28px;">📜</span>
+      Withdrawal History
+    </h3>
+
+    @if(withdrawals.length > 0)
+      <div style="border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+        @each(withdrawal in withdrawals)
+          <div class="history-item" style="padding: 20px; border-bottom: 1px solid #e5e7eb; cursor: pointer;" onclick="window.location.href='{{ route('admin.wallet.transaction.details', { id: withdrawal.id }) }}'">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+              <div style="display: flex; align-items: center; gap: 16px; flex: 1;">
+                <div style="width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0;
+                  {{ withdrawal.status === 'SUCCESS' ? 'background: #d1fae5;' : withdrawal.status === 'PENDING' ? 'background: #fef3c7;' : withdrawal.status === 'FAILED' ? 'background: #fee2e2;' : 'background: #e5e7eb;' }}">
+                  {{ withdrawal.status === 'SUCCESS' ? '✅' : withdrawal.status === 'PENDING' ? '⏳' : withdrawal.status === 'FAILED' ? '❌' : '📄' }}
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="font-weight: 700; color: #1f2937; margin-bottom: 4px; font-size: 16px;">
+                    {{ withdrawal.paymentHash || 'N/A' }}
+                  </div>
+                  <div style="font-size: 13px; color: #6b7280; margin-bottom: 2px;">
+                    📅 {{ withdrawal.createdAt.toFormat('dd/MM/yyyy HH:mm') }}
+                  </div>
+                  @if(withdrawal.recevingAdress)
+                    <div style="font-size: 13px; color: #6b7280; font-family: monospace;">
+                      📍 {{ withdrawal.recevingAdress }}
+                    </div>
+                  @end
+                  @if(withdrawal.comment)
+                    <div style="font-size: 12px; color: #9ca3af; margin-top: 4px; font-style: italic;">
+                      "{{ withdrawal.comment }}"
+                    </div>
+                  @end
+                </div>
+              </div>
+              <div style="text-align: right; flex-shrink: 0;">
+                <div style="font-weight: 700; font-size: 22px; color: #ef4444; margin-bottom: 6px;">
+                  -{{ withdrawal.askAmount.toLocaleString() }}
+                </div>
+                <div style="font-size: 12px; color: #6b7280; margin-bottom: 6px;">FCFA</div>
+                <div>
+                  @if(withdrawal.status === 'SUCCESS')
+                    <span style="background: #d1fae5; color: #065f46; padding: 5px 14px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                      ✅ SUCCESS
+                    </span>
+                  @elseif(withdrawal.status === 'PENDING')
+                    <span style="background: #fef3c7; color: #92400e; padding: 5px 14px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                      ⏳ PENDING
+                    </span>
+                  @elseif(withdrawal.status === 'FAILED')
+                    <span style="background: #fee2e2; color: #991b1b; padding: 5px 14px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                      ❌ FAILED
+                    </span>
+                  @else
+                    <span style="background: #e5e7eb; color: #374151; padding: 5px 14px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                      {{ withdrawal.status }}
+                    </span>
+                  @end
+                </div>
+              </div>
+            </div>
+          </div>
+        @end
+      </div>
+
+      <div style="margin-top: 16px; text-align: center;">
+        <a href="{{ route('admin.wallet.transactions') }}" style="color: #667eea; font-weight: 600; text-decoration: none; font-size: 14px;">
+          View All Transactions →
+        </a>
+      </div>
+    @else
+      <div style="padding: 60px 20px; text-align: center; color: #6b7280; border: 2px dashed #e5e7eb; border-radius: 12px;">
+        <div style="font-size: 56px; margin-bottom: 16px;">💸</div>
+        <p style="font-size: 16px; margin: 0; font-weight: 600;">No withdrawals yet</p>
+        <p style="font-size: 14px; margin: 8px 0 0 0; color: #9ca3af;">Your withdrawal history will appear here</p>
+      </div>
+    @end
+  </div>
+@end
+@end

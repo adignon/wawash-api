@@ -1,0 +1,324 @@
+@layout.admin({ title: 'Transaction Details', pageTitle: 'Transaction Details' })
+
+@slot('topbarActions')
+  <a href="{{ route('admin.wallet.transactions') }}" class="btn btn-secondary">
+    <span>←</span>
+    <span>Back to Transactions</span>
+  </a>
+@end
+
+@slot('main')
+  <style>
+    .detail-card {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      margin-bottom: 24px;
+    }
+
+    .detail-row {
+      display: flex;
+      padding: 16px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-label {
+      font-size: 14px;
+      color: #6b7280;
+      font-weight: 600;
+      width: 200px;
+      flex-shrink: 0;
+    }
+
+    .detail-value {
+      font-size: 14px;
+      color: #1f2937;
+      font-weight: 500;
+      flex: 1;
+    }
+
+    .status-banner {
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+  </style>
+
+  {{-- Status Banner --}}
+  @if(transaction.status === 'SUCCESS')
+    <div class="status-banner" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border: 2px solid #10b981;">
+      <div style="font-size: 56px;">✅</div>
+      <div style="flex: 1;">
+        <div style="font-size: 22px; font-weight: 700; color: #065f46; margin-bottom: 4px;">
+          Transaction Successful
+        </div>
+        <div style="font-size: 14px; color: #047857;">
+          This transaction was completed successfully
+        </div>
+      </div>
+    </div>
+  @elseif(transaction.status === 'PENDING')
+    <div class="status-banner" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b;">
+      <div style="font-size: 56px;">⏳</div>
+      <div style="flex: 1;">
+        <div style="font-size: 22px; font-weight: 700; color: #92400e; margin-bottom: 4px;">
+          Transaction Pending
+        </div>
+        <div style="font-size: 14px; color: #b45309;">
+          This transaction is being processed
+        </div>
+      </div>
+    </div>
+  @elseif(transaction.status === 'FAILED')
+    <div class="status-banner" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border: 2px solid #ef4444;">
+      <div style="font-size: 56px;">❌</div>
+      <div style="flex: 1;">
+        <div style="font-size: 22px; font-weight: 700; color: #991b1b; margin-bottom: 4px;">
+          Transaction Failed
+        </div>
+        <div style="font-size: 14px; color: #b91c1c;">
+          This transaction could not be completed
+        </div>
+      </div>
+    </div>
+  @else
+    <div class="status-banner" style="background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%); border: 2px solid #9ca3af;">
+      <div style="font-size: 56px;">📄</div>
+      <div style="flex: 1;">
+        <div style="font-size: 22px; font-weight: 700; color: #374151; margin-bottom: 4px;">
+          Transaction Created
+        </div>
+        <div style="font-size: 14px; color: #4b5563;">
+          This transaction has been created
+        </div>
+      </div>
+    </div>
+  @end
+
+  {{-- Amount Card --}}
+  <div class="detail-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+    <div style="text-align: center;">
+      <div style="font-size: 18px; opacity: 0.9; margin-bottom: 12px; font-weight: 500;">Transaction Amount</div>
+      <div style="font-size: 56px; font-weight: 700; margin-bottom: 8px;">
+        {{ transaction.askAmount >= 0 ? '-' : '+' }}{{ Math.abs(transaction.askAmount).toLocaleString() }}
+      </div>
+      <div style="font-size: 20px; opacity: 0.9; font-weight: 600;">FCFA</div>
+
+      @if(transaction.sentAmount && transaction.sentAmount !== transaction.askAmount)
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+          <div style="font-size: 14px; opacity: 0.8; margin-bottom: 6px;">Amount Sent</div>
+          <div style="font-size: 28px; font-weight: 700;">
+            {{ transaction.sentAmount.toLocaleString() }} FCFA
+          </div>
+        </div>
+      @end
+    </div>
+  </div>
+
+  {{-- Transaction Details --}}
+  <div class="detail-card">
+    <h3 style="font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 28px;">📋</span>
+      Transaction Information
+    </h3>
+
+    <div>
+      <div class="detail-row">
+        <div class="detail-label">Transaction ID</div>
+        <div class="detail-value" style="font-family: monospace; font-weight: 700; color: #667eea;">
+          #{{ transaction.id }}
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Payment Hash</div>
+        <div class="detail-value" style="font-family: monospace; word-break: break-all;">
+          {{ transaction.paymentHash || 'N/A' }}
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Status</div>
+        <div class="detail-value">
+          @if(transaction.status === 'SUCCESS')
+            <span style="background: #d1fae5; color: #065f46; padding: 6px 16px; border-radius: 12px; font-size: 13px; font-weight: 700;">
+              ✅ SUCCESS
+            </span>
+          @elseif(transaction.status === 'PENDING')
+            <span style="background: #fef3c7; color: #92400e; padding: 6px 16px; border-radius: 12px; font-size: 13px; font-weight: 700;">
+              ⏳ PENDING
+            </span>
+          @elseif(transaction.status === 'FAILED')
+            <span style="background: #fee2e2; color: #991b1b; padding: 6px 16px; border-radius: 12px; font-size: 13px; font-weight: 700;">
+              ❌ FAILED
+            </span>
+          @else
+            <span style="background: #e5e7eb; color: #374151; padding: 6px 16px; border-radius: 12px; font-size: 13px; font-weight: 700;">
+              {{ transaction.status }}
+            </span>
+          @end
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Created At</div>
+        <div class="detail-value">
+          📅 {{ transaction.createdAt.toFormat('dd MMMM yyyy, HH:mm:ss') }}
+        </div>
+      </div>
+
+      @if(transaction.paidAt)
+        <div class="detail-row">
+          <div class="detail-label">Paid At</div>
+          <div class="detail-value">
+            ✅ {{ transaction.paidAt.toFormat('dd MMMM yyyy, HH:mm:ss') }}
+          </div>
+        </div>
+      @end
+
+      <div class="detail-row">
+        <div class="detail-label">Updated At</div>
+        <div class="detail-value">
+          🔄 {{ transaction.updatedAt.toFormat('dd MMMM yyyy, HH:mm:ss') }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{-- Receiving Information --}}
+  <div class="detail-card">
+    <h3 style="font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 28px;">📍</span>
+      Receiving Information
+    </h3>
+
+    <div>
+      <div class="detail-row">
+        <div class="detail-label">Receiving Address</div>
+        <div class="detail-value" style="font-family: monospace; word-break: break-all;">
+          {{ transaction.recevingAdress || 'N/A' }}
+        </div>
+      </div>
+
+      @if(transaction.comment)
+        <div class="detail-row">
+          <div class="detail-label">Comment</div>
+          <div class="detail-value" style="font-style: italic; color: #6b7280;">
+            "{{ transaction.comment }}"
+          </div>
+        </div>
+      @end
+
+      <div class="detail-row">
+        <div class="detail-label">Merchant ID</div>
+        <div class="detail-value">
+          {{ transaction.merchantId || 'System' }}
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">User ID</div>
+        <div class="detail-value">
+          {{ transaction.userId || 'N/A' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{-- Fees & Financial Details --}}
+  <div class="detail-card">
+    <h3 style="font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 28px;">💰</span>
+      Financial Details
+    </h3>
+
+    <div>
+      <div class="detail-row">
+        <div class="detail-label">Asked Amount</div>
+        <div class="detail-value" style="font-size: 16px; font-weight: 700; color: #ef4444;">
+          {{ transaction.askAmount.toLocaleString() }} FCFA
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Sent Amount</div>
+        <div class="detail-value" style="font-size: 16px; font-weight: 700; color: #10b981;">
+          {{ transaction.sentAmount.toLocaleString() }} FCFA
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Network Fees</div>
+        <div class="detail-value" style="font-weight: 600;">
+          {{ transaction.networkFees.toLocaleString() }} FCFA
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Service Fees</div>
+        <div class="detail-value" style="font-weight: 600;">
+          {{ transaction.serviceFees.toLocaleString() }} FCFA
+        </div>
+      </div>
+
+      @let(totalFees = transaction.networkFees + transaction.serviceFees)
+      <div class="detail-row" style="background: #f9fafb; padding: 16px; border-radius: 8px; margin-top: 8px;">
+        <div class="detail-label" style="color: #1f2937;">Total Fees</div>
+        <div class="detail-value" style="font-size: 16px; font-weight: 700; color: #f59e0b;">
+          {{ totalFees.toLocaleString() }} FCFA
+        </div>
+      </div>
+
+      @let(netAmount = transaction.sentAmount - totalFees)
+      <div class="detail-row" style="background: #f0fdf4; padding: 16px; border-radius: 8px; margin-top: 8px;">
+        <div class="detail-label" style="color: #1f2937;">Net Amount</div>
+        <div class="detail-value" style="font-size: 18px; font-weight: 700; color: #10b981;">
+          {{ netAmount.toLocaleString() }} FCFA
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{-- Payment Account Details --}}
+  <div class="detail-card">
+    <h3 style="font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 28px;">🏦</span>
+      Payment Account
+    </h3>
+
+    <div>
+      <div class="detail-row">
+        <div class="detail-label">Payment Account ID</div>
+        <div class="detail-value">
+          #{{ transaction.paymentAccountId }}
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Address ID</div>
+        <div class="detail-value">
+          #{{ transaction.adressId || 'N/A' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{-- Actions --}}
+  <div style="display: flex; gap: 12px; justify-content: center; margin-top: 32px;">
+    <a href="{{ route('admin.wallet.transactions') }}" class="btn btn-secondary" style="padding: 12px 32px;">
+      ← Back to Transactions
+    </a>
+    <a href="{{ route('admin.wallet.dashboard') }}" class="btn btn-primary" style="padding: 12px 32px;">
+      🏠 Go to Dashboard
+    </a>
+  </div>
+@end
+@end

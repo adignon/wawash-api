@@ -1,0 +1,260 @@
+@layout.admin({ title: 'Dashboard', pageTitle: 'Dashboard' })
+  @slot('main')
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 32px;">
+      <!-- Stats Card 1 - Total Orders -->
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 24px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+          <div>
+            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Total Orders</div>
+            <div style="font-size: 32px; font-weight: 700;">{{ stats.totalOrders.toLocaleString() }}</div>
+          </div>
+          <div style="font-size: 40px; opacity: 0.8;">📦</div>
+        </div>
+        <div style="font-size: 12px; opacity: 0.8;">
+          Pending: {{ stats.pendingOrders }} | Processing: {{ stats.processingOrders }}
+        </div>
+      </div>
+
+      <!-- Stats Card 2 - Total Users -->
+      <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border: 2px solid #e5e7eb;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+          <div>
+            <div style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">Total Users</div>
+            <div style="font-size: 32px; font-weight: 700; color: #1f2937;">{{ stats.totalUsers.toLocaleString() }}</div>
+          </div>
+          <div style="font-size: 40px;">👤</div>
+        </div>
+        <div style="font-size: 12px; color: #10b981;">
+          {{ stats.activeSubscriptions }} active subscriptions
+        </div>
+      </div>
+
+      <!-- Stats Card 3 - Merchants -->
+      <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border: 2px solid #e5e7eb;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+          <div>
+            <div style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">Merchants</div>
+            <div style="font-size: 32px; font-weight: 700; color: #1f2937;">{{ stats.totalMerchants }}</div>
+          </div>
+          <div style="font-size: 40px;">🏪</div>
+        </div>
+        <div style="font-size: 12px; color: #10b981;">
+          {{ stats.activeMerchants }} active
+        </div>
+      </div>
+
+      <!-- Stats Card 4 - Revenue -->
+      <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border: 2px solid #e5e7eb;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+          <div>
+            <div style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">Total Revenue</div>
+            <div style="font-size: 32px; font-weight: 700; color: #1f2937;">{{ stats.totalRevenue.toLocaleString() }} FCFA</div>
+          </div>
+          <div style="font-size: 40px;">💰</div>
+        </div>
+        <div style="font-size: 12px; color: #10b981;">
+          {{ stats.completedOrders }} completed orders
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px; margin-bottom: 32px;">
+      <!-- Recent Orders -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Recent Orders</h2>
+          @if(hasPermission('orders.read'))
+            <a href="{{ route('admin.orders.index') }}" class="btn btn-secondary btn-sm">View All</a>
+          @end
+        </div>
+        @if(recentOrders.length > 0)
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="border-bottom: 2px solid #e5e7eb;">
+                  <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Order</th>
+                  <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">User</th>
+                  <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Status</th>
+                  <th style="padding: 12px; text-align: right; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                @each(order in recentOrders)
+                  <tr style="border-bottom: 1px solid #f3f4f6;">
+                    <td style="padding: 12px; font-weight: 600; color: #1f2937;">#{{ order.id }}</td>
+                    <td style="padding: 12px; color: #6b7280;">
+                      {{ order.user ? (order.user.firstname || order.user.lastname || 'Unknown') : 'N/A' }}
+                    </td>
+                    <td style="padding: 12px;">
+                      @if(order.status === 'CREATED')
+                        <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #dbeafe; color: #1e40af;">
+                          {{ order.status }}
+                        </span>
+                      @elseif(order.status === 'WASHING' || order.status === 'PICKED')
+                        <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #fef3c7; color: #92400e;">
+                          {{ order.status }}
+                        </span>
+                      @elseif(order.status === 'READY' || order.status === 'DELIVERED')
+                        <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #d1fae5; color: #065f46;">
+                          {{ order.status }}
+                        </span>
+                      @else
+                        <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #f3f4f6; color: #6b7280;">
+                          {{ order.status }}
+                        </span>
+                      @end
+                    </td>
+                    <td style="padding: 12px; text-align: right; color: #6b7280; font-size: 13px;">
+                      {{ order.createdAt ? order.createdAt.toFormat('MMM dd, HH:mm') : 'N/A' }}
+                    </td>
+                  </tr>
+                @end
+              </tbody>
+            </table>
+          </div>
+        @else
+          <div style="text-align: center; padding: 40px 20px; color: #6b7280;">
+            <div style="font-size: 48px; margin-bottom: 12px;">📦</div>
+            <p>No recent orders</p>
+          </div>
+        @end
+      </div>
+
+      <!-- Recent Payments -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Recent Payments</h2>
+          @if(hasPermission('wallet.read'))
+            <a href="{{ route('admin.wallet.transactions') }}" class="btn btn-secondary btn-sm">View All</a>
+          @end
+        </div>
+        @if(recentPayments.length > 0)
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="border-bottom: 2px solid #e5e7eb;">
+                  <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">User</th>
+                  <th style="padding: 12px; text-align: right; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Amount</th>
+                  <th style="padding: 12px; text-align: center; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Status</th>
+                  <th style="padding: 12px; text-align: right; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                @each(payment in recentPayments)
+                  <tr style="border-bottom: 1px solid #f3f4f6;">
+                    <td style="padding: 12px; color: #6b7280;">
+                      {{ payment.user ? (payment.user.firstname || payment.user.lastname || 'Unknown') : 'N/A' }}
+                    </td>
+                    <td style="padding: 12px; text-align: right; font-weight: 600; color: #1f2937;">
+                      {{ parseFloat(String(payment.amount || 0)).toLocaleString() }} FCFA
+                    </td>
+                    <td style="padding: 12px; text-align: center;">
+                      @if(payment.status === 'SUCCESS' || payment.status === 'COMPLETED')
+                        <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #d1fae5; color: #065f46;">
+                          {{ payment.status }}
+                        </span>
+                      @elseif(payment.status === 'PENDING')
+                        <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #fef3c7; color: #92400e;">
+                          {{ payment.status }}
+                        </span>
+                      @elseif(payment.status === 'FAILED')
+                        <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #fee2e2; color: #991b1b;">
+                          {{ payment.status }}
+                        </span>
+                      @else
+                        <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #f3f4f6; color: #6b7280;">
+                          {{ payment.status }}
+                        </span>
+                      @end
+                    </td>
+                    <td style="padding: 12px; text-align: right; color: #6b7280; font-size: 13px;">
+                      {{ payment.createdAt ? payment.createdAt.toFormat('MMM dd, HH:mm') : 'N/A' }}
+                    </td>
+                  </tr>
+                @end
+              </tbody>
+            </table>
+          </div>
+        @else
+          <div style="text-align: center; padding: 40px 20px; color: #6b7280;">
+            <div style="font-size: 48px; margin-bottom: 12px;">💳</div>
+            <p>No recent payments</p>
+          </div>
+        @end
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Quick Actions</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+        @if(hasPermission('admins.create'))
+          <a href="{{ route('admin.admins.create') }}" style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px; text-decoration: none; transition: all 0.3s; display: block;" onmouseover="this.style.borderColor='#667eea'; this.style.background='#f3f4f6';" onmouseout="this.style.borderColor='#e5e7eb'; this.style.background='white';">
+            <div style="font-size: 32px; margin-bottom: 12px;">➕</div>
+            <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">Add Admin</div>
+            <div style="font-size: 12px; color: #6b7280;">Create new administrator</div>
+          </a>
+        @end
+
+        @if(hasPermission('users.read'))
+          <a href="{{ route('admin.users.index') }}" style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px; text-decoration: none; transition: all 0.3s; display: block;" onmouseover="this.style.borderColor='#667eea'; this.style.background='#f3f4f6';" onmouseout="this.style.borderColor='#e5e7eb'; this.style.background='white';">
+            <div style="font-size: 32px; margin-bottom: 12px;">👥</div>
+            <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">View Users</div>
+            <div style="font-size: 12px; color: #6b7280;">Manage customers</div>
+          </a>
+        @end
+
+        @if(hasPermission('merchants.read'))
+          <a href="{{ route('admin.merchants.index') }}" style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px; text-decoration: none; transition: all 0.3s; display: block;" onmouseover="this.style.borderColor='#667eea'; this.style.background='#f3f4f6';" onmouseout="this.style.borderColor='#e5e7eb'; this.style.background='white';">
+            <div style="font-size: 32px; margin-bottom: 12px;">🏪</div>
+            <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">Merchants</div>
+            <div style="font-size: 12px; color: #6b7280;">Manage service providers</div>
+          </a>
+        @end
+
+        @if(hasPermission('orders.read'))
+          <a href="{{ route('admin.orders.index') }}" style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px; text-decoration: none; transition: all 0.3s; display: block;" onmouseover="this.style.borderColor='#667eea'; this.style.background='#f3f4f6';" onmouseout="this.style.borderColor='#e5e7eb'; this.style.background='white';">
+            <div style="font-size: 32px; margin-bottom: 12px;">📦</div>
+            <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">Orders</div>
+            <div style="font-size: 12px; color: #6b7280;">Manage orders</div>
+          </a>
+        @end
+
+        @if(hasPermission('subscriptions.read'))
+          <a href="{{ route('admin.subscriptions.index') }}" style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px; text-decoration: none; transition: all 0.3s; display: block;" onmouseover="this.style.borderColor='#667eea'; this.style.background='#f3f4f6';" onmouseout="this.style.borderColor='#e5e7eb'; this.style.background='white';">
+            <div style="font-size: 32px; margin-bottom: 12px;">📋</div>
+            <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">Subscriptions</div>
+            <div style="font-size: 12px; color: #6b7280;">Manage subscriptions</div>
+          </a>
+        @end
+
+        @if(hasPermission('config.read'))
+          <a href="{{ route('admin.config.index') }}" style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px; text-decoration: none; transition: all 0.3s; display: block;" onmouseover="this.style.borderColor='#667eea'; this.style.background='#f3f4f6';" onmouseout="this.style.borderColor='#e5e7eb'; this.style.background='white';">
+            <div style="font-size: 32px; margin-bottom: 12px;">⚙️</div>
+            <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">Configuration</div>
+            <div style="font-size: 12px; color: #6b7280;">System settings</div>
+          </a>
+        @end
+
+        @if(hasPermission('wallet.read'))
+          <a href="{{ route('admin.wallet.dashboard') }}" style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px; text-decoration: none; transition: all 0.3s; display: block;" onmouseover="this.style.borderColor='#667eea'; this.style.background='#f3f4f6';" onmouseout="this.style.borderColor='#e5e7eb'; this.style.background='white';">
+            <div style="font-size: 32px; margin-bottom: 12px;">💰</div>
+            <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">Wallet</div>
+            <div style="font-size: 12px; color: #6b7280;">Financial management</div>
+          </a>
+        @end
+
+        @if(hasPermission('packages.read'))
+          <a href="{{ route('admin.packages.index') }}" style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px; text-decoration: none; transition: all 0.3s; display: block;" onmouseover="this.style.borderColor='#667eea'; this.style.background='#f3f4f6';" onmouseout="this.style.borderColor='#e5e7eb'; this.style.background='white';">
+            <div style="font-size: 32px; margin-bottom: 12px;">📦</div>
+            <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">Packages</div>
+            <div style="font-size: 12px; color: #6b7280;">Manage packages</div>
+          </a>
+        @end
+      </div>
+    </div>
+  @end
+@end

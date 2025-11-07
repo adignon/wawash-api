@@ -1,0 +1,209 @@
+@layout.admin({ title: 'Edit Package', pageTitle: 'Edit Package' })
+
+@slot('topbarActions')
+  <a href="{{ route('admin.packages.index') }}" class="btn btn-secondary">
+    <span>←</span>
+    <span>Back</span>
+  </a>
+@end
+
+@slot('main')
+  <div class="card" style="max-width: 800px;">
+    <div class="card-header">
+      <h2 class="card-title">Edit Package Pricing</h2>
+    </div>
+
+    <form action="{{ route('admin.packages.update', { id: package.id }) }}" method="POST">
+      {{ csrfField() }}
+      <!-- Package Info (Read-only) -->
+      <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 24px; border: 1px solid #e5e7eb;">
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+          <div style="width: 56px; height: 56px; border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 32px;">
+            🧺
+          </div>
+          <div>
+            <div style="font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">
+              {{ package.name }}
+            </div>
+            <div style="font-size: 14px; color: #6b7280;">
+              Code: <span style="background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-family: monospace;">{{ package.code }}</span>
+              <span style="margin: 0 8px; color: #d1d5db;">•</span>
+              Weight: <span style="font-weight: 600; color: #374151;">{{ package.kg }} Kg</span>
+            </div>
+          </div>
+        </div>
+        @if(package.isSubscriptable)
+          <div style="display: inline-block; background: #d1fae5; color: #065f46; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px;">
+            ✓ Subscribable Package
+          </div>
+        @end
+      </div>
+
+      <!-- Editable Fields -->
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label for="amount" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+          Package Amount (FCFA) <span style="color: #ef4444;">*</span>
+        </label>
+        <input
+          type="number"
+          id="amount"
+          name="amount"
+          value="{{ old('amount') || package.amount }}"
+          required
+          min="0"
+          step="1"
+          style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;"
+          onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+          onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+        >
+        <span style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">The price customers pay for this package</span>
+        @if(errors?.amount)
+          <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.amount }}</span>
+        @end
+      </div>
+
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label for="kg" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+          Weight (Kg) <span style="color: #ef4444;">*</span>
+        </label>
+        <input
+          type="number"
+          id="kg"
+          name="kg"
+          value="{{ old('kg') || package.kg }}"
+          required
+          min="0"
+          step="0.1"
+          style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;"
+          onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+          onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+        >
+        <span style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">The weight limit for this package in kilograms</span>
+        @if(errors?.kg)
+          <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.kg }}</span>
+        @end
+      </div>
+
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label for="paidMultiplePickMin" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+          Minimum Paid Multiple Pickups
+        </label>
+        <input
+          type="number"
+          id="paidMultiplePickMin"
+          name="paidMultiplePickMin"
+          value="{{ old('paidMultiplePickMin') || package.paidMultiplePickMin || 0 }}"
+          min="0"
+          step="1"
+          style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;"
+          onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+          onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+        >
+        <span style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">Minimum number of pickups required for paid multiple pickup orders (leave 0 if not applicable)</span>
+        @if(errors?.paidMultiplePickMin)
+          <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.paidMultiplePickMin }}</span>
+        @end
+      </div>
+
+      <!-- Meta Fields Section -->
+      <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 24px; border: 1px solid #e5e7eb;">
+        <h3 style="font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 16px;">Package Metadata</h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label for="nombreDeJoursDeVetementMin" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+              Min Days of Clothes <span style="color: #ef4444;">*</span>
+            </label>
+            <input
+              type="number"
+              id="nombreDeJoursDeVetementMin"
+              name="nombreDeJoursDeVetementMin"
+              value="{{ old('nombreDeJoursDeVetementMin') || package.meta?.nombreDeJoursDeVetementMin }}"
+              required
+              min="0"
+              step="1"
+              style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;"
+              onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+              onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+            >
+            @if(errors?.nombreDeJoursDeVetementMin)
+              <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.nombreDeJoursDeVetementMin }}</span>
+            @end
+          </div>
+
+          <div class="form-group">
+            <label for="nombreDeJoursDeVetementMax" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+              Max Days of Clothes <span style="color: #ef4444;">*</span>
+            </label>
+            <input
+              type="number"
+              id="nombreDeJoursDeVetementMax"
+              name="nombreDeJoursDeVetementMax"
+              value="{{ old('nombreDeJoursDeVetementMax') || package.meta?.nombreDeJoursDeVetementMax }}"
+              required
+              min="0"
+              step="1"
+              style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;"
+              onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+              onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+            >
+            @if(errors?.nombreDeJoursDeVetementMax)
+              <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.nombreDeJoursDeVetementMax }}</span>
+            @end
+          </div>
+
+          <div class="form-group">
+            <label for="nombreDePersonnesMin" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+              Min Number of People
+            </label>
+            <input
+              type="number"
+              id="nombreDePersonnesMin"
+              name="nombreDePersonnesMin"
+              value="{{ old('nombreDePersonnesMin') || package.meta?.nombreDePersonnesMin || '' }}"
+              min="0"
+              step="1"
+              style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;"
+              onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+              onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+              placeholder="Optional"
+            >
+            <span style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">Optional - Leave empty if not applicable</span>
+            @if(errors?.nombreDePersonnesMin)
+              <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.nombreDePersonnesMin }}</span>
+            @end
+          </div>
+
+          <div class="form-group">
+            <label for="nombreDePersonnesMax" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+              Max Number of People
+            </label>
+            <input
+              type="number"
+              id="nombreDePersonnesMax"
+              name="nombreDePersonnesMax"
+              value="{{ old('nombreDePersonnesMax') || package.meta?.nombreDePersonnesMax || '' }}"
+              min="0"
+              step="1"
+              style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;"
+              onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+              onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+              placeholder="Optional"
+            >
+            <span style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">Optional - Leave empty if not applicable</span>
+            @if(errors?.nombreDePersonnesMax)
+              <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.nombreDePersonnesMax }}</span>
+            @end
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+        <a href="{{ route('admin.packages.index') }}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </div>
+    </form>
+  </div>
+@end
+@end

@@ -1,0 +1,119 @@
+@layout.admin({ title: 'System Configuration', pageTitle: 'System Configuration' })
+
+@slot('main')
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">System Settings</h2>
+      <p style="color: #6b7280; font-size: 14px; margin-top: 8px;">Manage global configuration values for the WaWash platform</p>
+    </div>
+
+    @if(configs.length === 0)
+      <div style="text-align: center; padding: 40px; color: #6b7280;">
+        <div style="font-size: 48px; margin-bottom: 16px;">⚙️</div>
+        <p style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">No configuration found</p>
+        <p style="font-size: 14px;">System configuration has not been initialized.</p>
+      </div>
+    @else
+      <div style="display: grid; gap: 20px;">
+        @each(config in configs)
+          <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 24px; transition: all 0.3s;" onmouseover="this.style.borderColor='#667eea'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.15)';" onmouseout="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
+            <form action="{{ route('admin.config.update', { id: config.id }) }}" method="POST">
+              {{ csrfField() }}
+              <div style="display: flex; align-items: start; gap: 20px;">
+                <!-- Icon -->
+                <div style="width: 56px; height: 56px; border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0;">
+                  @if(config.key.includes('DELIVERY'))
+                    🚚
+                  @elseif(config.key.includes('MERCHANT'))
+                    🏪
+                  @else
+                    ⚙️
+                  @end
+                </div>
+
+                <!-- Content -->
+                <div style="flex: 1;">
+                  <div style="margin-bottom: 16px;">
+                    <div style="font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">
+                      {{ config.key.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase()) }}
+                    </div>
+                    <div style="font-size: 12px; color: #6b7280; font-family: monospace; background: #f3f4f6; padding: 4px 8px; border-radius: 4px; display: inline-block;">
+                      {{ config.key }}
+                    </div>
+                  </div>
+
+                  <!-- Value Input -->
+                  <div style="display: flex; gap: 12px; align-items: end;">
+                    <div style="flex: 1;">
+                      <label for="value_{{ config.id }}" style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">
+                        Value (FCFA)
+                      </label>
+                      <input
+                        type="number"
+                        id="value_{{ config.id }}"
+
+                        name="value"
+                        value="{{ config.value }}"
+                        required
+                        min="0"
+                        step="0.001"
+                        step="1"
+                        style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; font-weight: 600; outline: none; transition: all 0.3s;"
+                        onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+                        onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+                      >
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="padding: 12px 24px;">
+                      Save
+                    </button>
+                  </div>
+
+                  <!-- Description -->
+                  <div style="margin-top: 12px; font-size: 13px; color: #6b7280;">
+                    @if(config.key === 'SERVICE_MERCHANT_COST_PER_KG')
+                      Cost charged to the merchant per kilogram of laundry processed
+                    @elseif(config.key === 'SERVICE_DELIVERY_COST')
+                      Fixed delivery cost charged for order delivery service
+                    @else
+                      {{ config.key }} configuration value
+                    @end
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        @end
+      </div>
+
+      <!-- Summary Card -->
+      <div style="margin-top: 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 24px; color: white;">
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+          <div style="font-size: 40px;">💡</div>
+          <div>
+            <div style="font-size: 18px; font-weight: 700; margin-bottom: 4px;">Configuration Tips</div>
+            <div style="font-size: 14px; opacity: 0.9;">Important information about system settings</div>
+          </div>
+        </div>
+        <ul style="list-style: none; padding: 0; margin: 0; font-size: 14px; opacity: 0.95;">
+          <li style="padding: 8px 0; padding-left: 24px; position: relative;">
+            <span style="position: absolute; left: 0;">•</span>
+            Changes to configuration values take effect immediately
+          </li>
+          <li style="padding: 8px 0; padding-left: 24px; position: relative;">
+            <span style="position: absolute; left: 0;">•</span>
+            SERVICE_MERCHANT_COST_PER_KG affects the cost charged to merchants for each kg processed
+          </li>
+          <li style="padding: 8px 0; padding-left: 24px; position: relative;">
+            <span style="position: absolute; left: 0;">•</span>
+            SERVICE_DELIVERY_COST is added to orders that include delivery service
+          </li>
+          <li style="padding: 8px 0; padding-left: 24px; position: relative;">
+            <span style="position: absolute; left: 0;">•</span>
+            All values are in FCFA (West African CFA franc)
+          </li>
+        </ul>
+      </div>
+    @end
+  </div>
+@end
+@end

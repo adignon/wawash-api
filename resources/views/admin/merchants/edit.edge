@@ -1,0 +1,236 @@
+@layout.admin({ title: 'Edit Merchant', pageTitle: 'Edit Merchant' })
+
+@slot('topbarActions')
+  <a href="{{ route('admin.merchants.index') }}" class="btn btn-secondary">
+    <span>←</span>
+    <span>Back</span>
+  </a>
+@end
+
+@slot('main')
+  <style>
+    .address-item:last-child {
+      border-bottom: none !important;
+    }
+  </style>
+
+  <div class="card" style="max-width: 800px;">
+    <div class="card-header">
+      <h2 class="card-title">Edit Merchant</h2>
+    </div>
+
+    <form action="{{ route('admin.merchants.update', { id: merchant.id }) }}" method="POST">
+      {{ csrfField() }}
+      {{-- Merchant Info (Read-only) --}}
+      <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 24px; border: 1px solid #e5e7eb;">
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+          <div style="width: 56px; height: 56px; border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 32px;">
+            🏪
+          </div>
+          <div>
+            <div style="font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">
+              {{ merchant.name }}
+            </div>
+            <div style="font-size: 14px; color: #6b7280;">
+              ID: <span style="background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-family: monospace;">{{ merchant.id }}</span>
+            </div>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 13px;">
+          <div>
+            <span style="color: #6b7280;">Balance:</span>
+            <strong style="color: #10b981;">{{ merchant.balance ? merchant.balance.toLocaleString() : '0' }} FCFA</strong>
+          </div>
+          <div>
+            <span style="color: #6b7280;">Frozen Balance:</span>
+            <strong style="color: #f59e0b;">{{ merchant.frozenBalance ? merchant.frozenBalance.toLocaleString() : '0' }} FCFA</strong>
+          </div>
+        </div>
+      </div>
+
+      {{-- Editable Fields --}}
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label for="name" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+          Merchant Name <span style="color: #ef4444;">*</span>
+        </label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          value="{{ old('name') || merchant.name }}"
+          required
+          placeholder="e.g., Ets Cleaner"
+          style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;"
+          onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+          onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+        >
+        <span style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">The business name of the merchant</span>
+        @if(errors?.name)
+          <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.name }}</span>
+        @end
+      </div>
+
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label for="phones" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+          Manager Phone Numbers <span style="color: #ef4444;">*</span>
+        </label>
+        @let(phonesValue = old('phones') || (Array.isArray(merchant.phones) ? merchant.phones.join(', ') : ''))
+        <input
+          type="text"
+          id="phones"
+          name="phones"
+          value="{{ phonesValue }}"
+          required
+          placeholder="+22901XXXXXXXX, +22901YYYYYYYY"
+          style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s; font-family: monospace;"
+          onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+          onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+        >
+        <span style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">
+          Comma-separated phone numbers (format: +22901XXXXXXXX). These are the manager contacts who can access orders.
+        </span>
+        @if(errors?.phones)
+          <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.phones }}</span>
+        @end
+      </div>
+
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label for="washingType" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+          Washing Type <span style="color: #ef4444;">*</span>
+        </label>
+        @let(washingTypeValue = old('washingType') || merchant.washingType)
+        <select
+          id="washingType"
+          name="washingType"
+          required
+          style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s; background: white;"
+          onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+          onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+        >
+          <option value="">Select washing type...</option>
+          <option value="MANUAL" {{ washingTypeValue === 'MANUAL' ? 'selected' : '' }}>🤲 Manual Washing</option>
+          <option value="MACHINE" {{ washingTypeValue === 'MACHINE' ? 'selected' : '' }}>🌀 Machine Washing</option>
+        </select>
+        <span style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">The type of washing service provided by this merchant</span>
+        @if(errors?.washingType)
+          <span style="color: #ef4444; font-size: 12px; margin-top: 4px; display: block;">{{ errors?.washingType }}</span>
+        @end
+      </div>
+
+      <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+        <div style="display: flex; gap: 12px;">
+          <div style="font-size: 20px;">💡</div>
+          <div>
+            <div style="font-weight: 600; color: #92400e; margin-bottom: 4px;">Important Note</div>
+            <div style="font-size: 13px; color: #78350f;">
+              • Phone numbers must be in format: <strong>+22901XXXXXXXX</strong><br>
+              • Separate multiple phone numbers with commas<br>
+              • These phone numbers will be used by managers to log in and manage orders<br>
+              • Balance cannot be edited here (managed by the system)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- Form Actions --}}
+      <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+        <a href="{{ route('admin.merchants.index') }}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </div>
+    </form>
+  </div>
+
+  {{-- Merchant Addresses Section --}}
+  <div class="card" style="max-width: 800px; margin-top: 24px;">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <h2 class="card-title">Store Addresses</h2>
+      <a href="{{ route('admin.merchant.address.create', { merchantId: merchant.id }) }}" class="btn btn-primary">
+        <span>+</span>
+        <span>Add Address</span>
+      </a>
+    </div>
+
+    @if(merchant.addresses && merchant.addresses.length > 0)
+      <div style="padding: 0;">
+        @each(address in merchant.addresses)
+          <div class="address-item" style="padding: 20px; border-bottom: 1px solid #e5e7eb;">
+            <div style="display: flex; justify-content: space-between; align-items: start; gap: 16px;">
+              <div style="flex: 1;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                  <div style="font-size: 24px;">📍</div>
+                  <h3 style="font-size: 16px; font-weight: 600; color: #1f2937; margin: 0;">{{ address.quartier }}</h3>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 12px; font-size: 13px;">
+                  <div>
+                    <span style="color: #6b7280;">Commune:</span>
+                    <strong style="color: #374151;">{{ address.commune }}</strong>
+                  </div>
+                  <div>
+                    <span style="color: #6b7280;">Arrondissement:</span>
+                    <strong style="color: #374151;">{{ address.arrondissement }}</strong>
+                  </div>
+                  <div>
+                    <span style="color: #6b7280;">Département:</span>
+                    <strong style="color: #374151;">{{ address.departement }}</strong>
+                  </div>
+                  <div>
+                    <span style="color: #6b7280;">Country:</span>
+                    <strong style="color: #374151;">{{ address.country }}</strong>
+                  </div>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                  <span style="color: #6b7280; font-size: 13px;">Description:</span>
+                  <p style="color: #374151; margin: 4px 0 0 0; font-size: 13px;">{{ address.description }}</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 13px;">
+                  <div>
+                    <span style="color: #6b7280;">Contact:</span>
+                    <strong style="color: #374151;">{{ address.contactFullname }}</strong>
+                  </div>
+                  <div>
+                    <span style="color: #6b7280;">Phone:</span>
+                    <strong style="color: #374151; font-family: monospace;">{{ address.contactPhone }}</strong>
+                  </div>
+                </div>
+
+                @if(address.coordinates)
+                  <div style="margin-top: 8px; font-size: 12px; color: #6b7280;">
+                    📍 {{ address.coordinates.latitude }}, {{ address.coordinates.longitude }}
+                  </div>
+                @end
+              </div>
+
+              <div style="display: flex; gap: 8px;">
+                <a href="{{ route('admin.merchant.address.edit', { merchantId: merchant.id, id: address.id }) }}"
+                   class="btn btn-sm btn-secondary"
+                   style="padding: 6px 12px; font-size: 13px;">
+                  Edit
+                </a>
+                <form action="{{ route('admin.merchant.address.delete', { merchantId: merchant.id, id: address.id }) }}"
+                      method="POST"
+                      onsubmit="return confirm('Are you sure you want to delete this address?')"
+                      style="margin: 0;">
+                  <button type="submit"
+                          class="btn btn-sm btn-danger"
+                          style="padding: 6px 12px; font-size: 13px; background: #ef4444; border-color: #ef4444;">
+                    Delete
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        @end
+      </div>
+    @else
+      <div style="padding: 40px; text-align: center; color: #6b7280;">
+        <div style="font-size: 48px; margin-bottom: 16px;">📍</div>
+        <p style="font-size: 15px; margin: 0;">No addresses added yet</p>
+        <p style="font-size: 13px; margin: 8px 0 0 0;">Click "Add Address" to create a new store address</p>
+      </div>
+    @end
+  </div>
+@end
+@end

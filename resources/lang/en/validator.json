@@ -1,0 +1,26 @@
+{
+  "shared": {
+    "fields": {
+      "phone": "Phone number",
+      "deviceId": "Device ID",
+      "otp": "Verification code",
+      "lastname": "Last name",
+      "firstname": "First name",
+      "email": "Email",
+      "profileImage": "Profile image"
+    },
+    "messages": {
+      "exists": "{field} n'existe pas.",
+      "required": "{field} is required",
+      "minLength": "{field} must contain at least {options.minLength} characters",
+      "maxLength": "{field} must not exceed {options.maxLength} characters",
+      "email": "{field} must be a valid email address",
+      "regex": "{field} has an invalid format",
+      "enum": "{field} contains an unauthorized value",
+      "uuid": "{field} must be a valid UUID",
+      "jwt": "{field} must be a valid JWT",
+      "file.size": "{field} must not exceed {options.size}",
+      "file.extnames": "{field} must be of type: {options.extnames}"
+    }
+  }
+}

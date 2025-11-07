@@ -1,0 +1,242 @@
+@layout.admin({ title: 'Transactions', pageTitle: 'Transaction History' })
+
+@slot('topbarActions')
+  <a href="{{ route('admin.wallet.dashboard') }}" class="btn btn-secondary">
+    <span>←</span>
+    <span>Back to Wallet</span>
+  </a>
+@end
+
+@slot('main')
+  <style>
+    .transaction-card {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .transaction-card:hover {
+      background: #f9fafb;
+      transform: translateX(4px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border: 2px solid #e5e7eb;
+      background: white;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover {
+      border-color: #667eea;
+      color: #667eea;
+    }
+
+    .filter-btn.active {
+      background: #667eea;
+      border-color: #667eea;
+      color: white;
+    }
+  </style>
+
+  {{-- Search and Filters --}}
+  <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-bottom: 24px;">
+    <form action="{{ route('admin.wallet.transactions') }}" method="GET">
+      <div style="display: grid; grid-template-columns: 1fr auto; gap: 16px; margin-bottom: 16px;">
+        <div style="position: relative;">
+          <input
+            type="text"
+            name="search"
+            value="{{ search || '' }}"
+            placeholder="Search by hash, address, or comment..."
+            style="width: 100%; padding: 12px 40px 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px; outline: none;"
+            onfocus="this.style.borderColor='#667eea'"
+            onblur="this.style.borderColor='#e5e7eb'"
+          >
+          @if(search)
+            <a
+              href="{{ route('admin.wallet.transactions') }}"
+              style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #6b7280; text-decoration: none; font-size: 20px;"
+              title="Clear search"
+            >×</a>
+          @end
+        </div>
+        <button type="submit" class="btn btn-primary" style="padding: 12px 24px;">
+          🔍 Search
+        </button>
+      </div>
+
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <span style="font-size: 13px; font-weight: 600; color: #6b7280; padding: 8px 0;">Status:</span>
+        <button
+          type="submit"
+          name="status"
+          value=""
+          class="filter-btn {{ !status ? 'active' : '' }}"
+        >All</button>
+        <button
+          type="submit"
+          name="status"
+          value="SUCCESS"
+          class="filter-btn {{ status === 'SUCCESS' ? 'active' : '' }}"
+        >✅ Success</button>
+        <button
+          type="submit"
+          name="status"
+          value="PENDING"
+          class="filter-btn {{ status === 'PENDING' ? 'active' : '' }}"
+        >⏳ Pending</button>
+        <button
+          type="submit"
+          name="status"
+          value="FAILED"
+          class="filter-btn {{ status === 'FAILED' ? 'active' : '' }}"
+        >❌ Failed</button>
+        <button
+          type="submit"
+          name="status"
+          value="CREATED"
+          class="filter-btn {{ status === 'CREATED' ? 'active' : '' }}"
+        >📄 Created</button>
+      </div>
+    </form>
+  </div>
+
+  {{-- Transactions List --}}
+  <div style="background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+    <h2 style="font-size: 22px; font-weight: 700; color: #1f2937; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 32px;">📋</span>
+      Transactions ({{ transactions.length }})
+    </h2>
+
+    @if(transactions.length > 0)
+      <div style="display: grid; gap: 16px;">
+        @each(transaction in transactions)
+          <div
+            class="transaction-card"
+            onclick="window.location.href='{{ route('admin.wallet.transaction.details', { id: transaction.id }) }}'"
+            style="border: 2px solid #e5e7eb; border-radius: 12px; padding: 20px; background: white;"
+          >
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 20px;">
+              {{-- Left Section --}}
+              <div style="display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0;">
+                <div style="width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; flex-shrink: 0;
+                  {{ transaction.status === 'SUCCESS' ? 'background: #d1fae5;' : transaction.status === 'PENDING' ? 'background: #fef3c7;' : transaction.status === 'FAILED' ? 'background: #fee2e2;' : 'background: #e5e7eb;' }}">
+                  {{ transaction.status === 'SUCCESS' ? '✅' : transaction.status === 'PENDING' ? '⏳' : transaction.status === 'FAILED' ? '❌' : '📄' }}
+                </div>
+
+                <div style="flex: 1; min-width: 0;">
+                  <div style="font-weight: 700; color: #1f2937; margin-bottom: 6px; font-size: 17px; word-break: break-all;">
+                    {{ transaction.paymentHash || 'N/A' }}
+                  </div>
+
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; font-size: 13px; color: #6b7280;">
+                    <div>
+                      📅 {{ transaction.createdAt.toFormat('dd/MM/yyyy HH:mm') }}
+                    </div>
+
+                    @if(transaction.recevingAdress)
+                      <div style="word-break: break-all;">
+                        📍 {{ transaction.recevingAdress }}
+                      </div>
+                    @end
+
+                    @if(transaction.paidAt)
+                      <div>
+                        ✓ Paid: {{ transaction.paidAt.toFormat('dd/MM/yyyy HH:mm') }}
+                      </div>
+                    @end
+                  </div>
+
+                  @if(transaction.comment)
+                    <div style="font-size: 13px; color: #9ca3af; margin-top: 8px; padding: 8px 12px; background: #f9fafb; border-radius: 6px; font-style: italic;">
+                      💬 "{{ transaction.comment }}"
+                    </div>
+                  @end
+
+                  {{-- Fees Info --}}
+                  @if(transaction.networkFees || transaction.serviceFees)
+                    <div style="display: flex; gap: 16px; margin-top: 8px; font-size: 12px; color: #6b7280;">
+                      @if(transaction.networkFees)
+                        <div>Network Fee: <strong>{{ transaction.networkFees.toLocaleString() }} FCFA</strong></div>
+                      @end
+                      @if(transaction.serviceFees)
+                        <div>Service Fee: <strong>{{ transaction.serviceFees.toLocaleString() }} FCFA</strong></div>
+                      @end
+                    </div>
+                  @end
+                </div>
+              </div>
+
+              {{-- Right Section --}}
+              <div style="text-align: right; flex-shrink: 0;">
+                <div style="font-weight: 700; font-size: 26px; margin-bottom: 8px;
+                  {{ transaction.askAmount >= 0 ? 'color: #ef4444;' : 'color: #10b981;' }}">
+                  {{ transaction.askAmount >= 0 ? '-' : '+' }}{{ Math.abs(transaction.askAmount).toLocaleString() }}
+                </div>
+                <div style="font-size: 13px; color: #6b7280; margin-bottom: 8px; font-weight: 600;">FCFA</div>
+
+                <div>
+                  @if(transaction.status === 'SUCCESS')
+                    <span style="background: #d1fae5; color: #065f46; padding: 6px 16px; border-radius: 12px; font-size: 12px; font-weight: 700; display: inline-block;">
+                      ✅ SUCCESS
+                    </span>
+                  @elseif(transaction.status === 'PENDING')
+                    <span style="background: #fef3c7; color: #92400e; padding: 6px 16px; border-radius: 12px; font-size: 12px; font-weight: 700; display: inline-block;">
+                      ⏳ PENDING
+                    </span>
+                  @elseif(transaction.status === 'FAILED')
+                    <span style="background: #fee2e2; color: #991b1b; padding: 6px 16px; border-radius: 12px; font-size: 12px; font-weight: 700; display: inline-block;">
+                      ❌ FAILED
+                    </span>
+                  @else
+                    <span style="background: #e5e7eb; color: #374151; padding: 6px 16px; border-radius: 12px; font-size: 12px; font-weight: 700; display: inline-block;">
+                      {{ transaction.status }}
+                    </span>
+                  @end
+                </div>
+
+                @if(transaction.sentAmount && transaction.sentAmount !== transaction.askAmount)
+                  <div style="font-size: 12px; color: #6b7280; margin-top: 8px;">
+                    Sent: <strong>{{ transaction.sentAmount.toLocaleString() }} FCFA</strong>
+                  </div>
+                @end
+              </div>
+            </div>
+          </div>
+        @end
+      </div>
+    @else
+      <div style="padding: 80px 20px; text-align: center; color: #6b7280; border: 2px dashed #e5e7eb; border-radius: 16px;">
+        <div style="font-size: 64px; margin-bottom: 20px;">📋</div>
+        @if(search || status)
+          <p style="font-size: 18px; margin: 0; font-weight: 600; color: #374151;">No transactions found</p>
+          <p style="font-size: 15px; margin: 12px 0 0 0; color: #6b7280;">
+            Try adjusting your search or filters
+          </p>
+          <p style="margin-top: 16px;">
+            <a href="{{ route('admin.wallet.transactions') }}" style="color: #667eea; font-weight: 600; text-decoration: none;">
+              Clear filters →
+            </a>
+          </p>
+        @else
+          <p style="font-size: 18px; margin: 0; font-weight: 600; color: #374151;">No transactions yet</p>
+          <p style="font-size: 15px; margin: 12px 0 0 0; color: #6b7280;">
+            Transaction history will appear here
+          </p>
+          <p style="margin-top: 16px;">
+            <a href="{{ route('admin.wallet.withdraw') }}" style="color: #667eea; font-weight: 600; text-decoration: none;">
+              Create withdrawal →
+            </a>
+          </p>
+        @end
+      </div>
+    @end
+  </div>
+@end
+@end

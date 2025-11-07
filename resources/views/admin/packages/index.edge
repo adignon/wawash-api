@@ -1,0 +1,110 @@
+@layout.admin({ title: 'Manage Packages', pageTitle: 'Package Management' })
+
+@slot('main')
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">All Packages</h2>
+    </div>
+
+    @if(packages.length === 0)
+      <div style="text-align: center; padding: 40px; color: #6b7280;">
+        <div style="font-size: 48px; margin-bottom: 16px;">📦</div>
+        <p style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">No packages found</p>
+        <p style="font-size: 14px;">No packages are configured in the system.</p>
+      </div>
+    @else
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="border-bottom: 2px solid #e5e7eb;">
+              <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Package</th>
+              <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Code</th>
+              <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Weight (Kg)</th>
+              <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Amount</th>
+              <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Meta Info</th>
+              <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Subscribable</th>
+              <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @each(package in packages)
+              <tr style="border-bottom: 1px solid #f3f4f6;">
+                <td style="padding: 16px;">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                      🧺
+                    </div>
+                    <div>
+                      <div style="font-weight: 600; font-size: 14px; color: #1f2937;">
+                        {{ package.name }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td style="padding: 16px;">
+                  <span style="background: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 6px; font-weight: 600; font-size: 13px; font-family: monospace;">
+                    {{ package.code }}
+                  </span>
+                </td>
+                <td style="padding: 16px; font-size: 14px; color: #374151; font-weight: 600;">
+                  {{ package.kg }} Kg
+                </td>
+                <td style="padding: 16px;">
+                  <div style="font-size: 18px; font-weight: 700; color: #10b981;">
+                    {{ package.amount.toLocaleString() }} FCFA
+                  </div>
+                </td>
+                <td style="padding: 16px;">
+                  <div style="font-size: 13px; color: #374151;">
+                    @if(package.meta)
+                      <div style="margin-bottom: 4px;">
+                        <span style="font-weight: 600;">Days:</span> {{ package.meta.nombreDeJoursDeVetementMin }}-{{ package.meta.nombreDeJoursDeVetementMax }}
+                      </div>
+                      @if(package.meta.nombreDePersonnesMin || package.meta.nombreDePersonnesMax)
+                        <div>
+                          <span style="font-weight: 600;">People:</span>
+                          @if(package.meta.nombreDePersonnesMin && package.meta.nombreDePersonnesMax)
+                            {{ package.meta.nombreDePersonnesMin }}-{{ package.meta.nombreDePersonnesMax }}
+                          @elseif(package.meta.nombreDePersonnesMin)
+                            {{ package.meta.nombreDePersonnesMin }}+
+                          @else
+                            Up to {{ package.meta.nombreDePersonnesMax }}
+                          @end
+                        </div>
+                      @end
+                    @else
+                      <span style="color: #9ca3af;">No meta</span>
+                    @end
+                  </div>
+                </td>
+                <td style="padding: 16px;">
+                  @if(package.isSubscriptable)
+                    <span style="background: #d1fae5; color: #065f46; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px;">
+                      ✓ Yes
+                    </span>
+                  @else
+                    <span style="background: #fee2e2; color: #991b1b; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px;">
+                      × No
+                    </span>
+                  @end
+                </td>
+                <td style="padding: 16px;">
+                  <a href="{{ route('admin.packages.edit', { id: package.id }) }}" class="btn btn-secondary btn-sm">
+                    Edit
+                  </a>
+                </td>
+              </tr>
+            @end
+          </tbody>
+        </table>
+      </div>
+    @end
+  </div>
+
+  <style>
+    table tr:hover {
+      background-color: #f9fafb;
+    }
+  </style>
+@end
+@end

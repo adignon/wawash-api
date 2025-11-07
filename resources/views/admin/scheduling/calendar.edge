@@ -1,0 +1,177 @@
+@layout.admin({ title: 'Order Scheduling - Calendar', pageTitle: 'Order Scheduling - Calendar View' })
+
+@slot('topbarActions')
+  <div style="display: flex; gap: 12px;">
+    <a href="{{ route('admin.scheduling.list') }}" class="btn btn-secondary">
+      <span>📋</span>
+      <span>List View</span>
+    </a>
+    <a href="{{ route('admin.delivery.assignments') }}" class="btn btn-primary">
+      <span>🚚</span>
+      <span>Delivery Assignments</span>
+    </a>
+  </div>
+@end
+
+@slot('main')
+  <style>
+    .calendar-container {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .calendar-nav {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .calendar-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+    .calendar-day-header {
+      text-align: center;
+      font-weight: 600;
+      color: #6b7280;
+      font-size: 14px;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+    .calendar-day {
+      aspect-ratio: 1;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .calendar-day:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+      transform: translateY(-2px);
+    }
+    .calendar-day.empty {
+      background: #f9fafb;
+      cursor: default;
+      border-color: transparent;
+    }
+    .calendar-day.empty:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: transparent;
+    }
+    .calendar-day.today {
+      border-color: #667eea;
+      background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
+    }
+    .calendar-day.has-orders {
+      border-color: #10b981;
+    }
+    .day-number {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .calendar-day.today .day-number {
+      color: #667eea;
+    }
+    .order-badge {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      margin-top: 8px;
+    }
+    .calendar-day.has-orders .order-badge {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+    .nav-btn {
+      padding: 8px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      background: white;
+      color: #374151;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .nav-btn:hover {
+      border-color: #667eea;
+      background: #f0f4ff;
+      color: #667eea;
+    }
+  </style>
+
+  <div class="calendar-container">
+    <div class="calendar-header">
+      <div class="calendar-title">{{ currentMonth }}</div>
+      <div class="calendar-nav">
+        <a href="?year={{ prevMonth.year }}&month={{ prevMonth.month }}" class="nav-btn">
+          ← Previous
+        </a>
+        <a href="?year={{ currentYear }}&month={{ currentMonthNum }}" class="nav-btn">
+          Today
+        </a>
+        <a href="?year={{ nextMonth.year }}&month={{ nextMonth.month }}" class="nav-btn">
+          Next →
+        </a>
+      </div>
+    </div>
+
+    <div class="calendar-grid">
+      <div class="calendar-day-header">Sun</div>
+      <div class="calendar-day-header">Mon</div>
+      <div class="calendar-day-header">Tue</div>
+      <div class="calendar-day-header">Wed</div>
+      <div class="calendar-day-header">Thu</div>
+      <div class="calendar-day-header">Fri</div>
+      <div class="calendar-day-header">Sat</div>
+
+      @each(dayData in calendarDays)
+        @if(dayData.day)
+          <a
+            href="{{ route('admin.scheduling.orders.date', { date: dayData.date }) }}"
+            class="calendar-day {{ dayData.isToday ? 'today' : '' }} {{ dayData.orderCount > 0 ? 'has-orders' : '' }}"
+            style="text-decoration: none;"
+          >
+            <div class="day-number">{{ dayData.day }}</div>
+            @if(dayData.orderCount > 0)
+              <div class="order-badge">
+                {{ dayData.orderCount }} {{ dayData.orderCount === 1 ? 'order' : 'orders' }}
+              </div>
+            @end
+          </a>
+        @else
+          <div class="calendar-day empty"></div>
+        @end
+      @end
+    </div>
+  </div>
+@end
+@end

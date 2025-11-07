@@ -1,0 +1,142 @@
+@layout.admin({ title: 'Orders for ' + date, pageTitle: 'Orders for ' + date })
+
+@slot('topbarActions')
+  <a href="{{ route('admin.scheduling.calendar') }}" class="btn btn-secondary">
+    <span>←</span>
+    <span>Back to Calendar</span>
+  </a>
+@end
+
+@slot('main')
+  <style>
+    .order-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border: 2px solid #e5e7eb;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .order-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+      transform: translateY(-2px);
+    }
+    .order-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .order-id-large {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .order-status {
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .status-CREATED { background: #dbeafe; color: #1e40af; }
+    .status-STARTED { background: #fef3c7; color: #92400e; }
+    .status-PICKED { background: #e0e7ff; color: #4338ca; }
+    .status-WASHING { background: #e0e7ff; color: #4338ca; }
+    .status-READY { background: #d1fae5; color: #065f46; }
+    .status-DELIVERED { background: #d1fae5; color: #065f46; }
+    .order-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .info-block {
+      background: #f9fafb;
+      padding: 16px;
+      border-radius: 8px;
+    }
+    .info-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+    .info-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+    .empty-state {
+      background: white;
+      border-radius: 12px;
+      padding: 60px 24px;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+    .empty-text {
+      font-size: 18px;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+  </style>
+
+  @if(orders.length > 0)
+    @each(order in orders)
+      <a href="{{ route('admin.scheduling.order.details', { id: order.id }) }}" style="text-decoration: none;">
+        <div class="order-card">
+          <div class="order-card-header">
+            <div class="order-id-large">#{{ order.orderId }}</div>
+            <div class="order-status status-{{ order.status }}">{{ order.status }}</div>
+          </div>
+
+          <div class="order-grid">
+            <div class="info-block">
+              <div class="info-label">Customer</div>
+              <div class="info-value">{{ order.user?.firstname || '' }} {{ order.user?.lastname || 'N/A' }}</div>
+            </div>
+
+            <div class="info-block">
+              <div class="info-label">Merchant</div>
+              <div class="info-value">{{ order.merchant?.name || 'Not assigned' }}</div>
+            </div>
+
+            <div class="info-block">
+              <div class="info-label">Delivery Time</div>
+              <div class="info-value">{{ order.deliveryDate.toFormat('HH:mm') }}</div>
+            </div>
+
+            <div class="info-block">
+              <div class="info-label">Package</div>
+              <div class="info-value">{{ order.orderTitle }}</div>
+            </div>
+
+            <div class="info-block">
+              <div class="info-label">Type</div>
+              <div class="info-value">{{ order.orderType }}</div>
+            </div>
+
+            <div class="info-block">
+              <div class="info-label">Weight</div>
+              <div class="info-value">{{ order.userKg || order.capacityKg || 'N/A' }} kg</div>
+            </div>
+          </div>
+        </div>
+      </a>
+    @end
+  @else
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <div class="empty-text">No orders scheduled for this date</div>
+      <div style="color: #9ca3af; font-size: 14px;">Try selecting a different date from the calendar</div>
+    </div>
+  @end
+@end
+@end

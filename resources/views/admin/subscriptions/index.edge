@@ -1,0 +1,402 @@
+@layout.admin({ title: 'Subscriptions', pageTitle: 'Subscription Management' })
+
+@slot('main')
+  @if(subscriptions.length === 0 && !search)
+    <div class="card">
+      <div style="text-align: center; padding: 40px; color: #6b7280;">
+        <div style="font-size: 48px; margin-bottom: 16px;">📋</div>
+        <p style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">No subscriptions found</p>
+        <p style="font-size: 14px;">No active subscriptions in the system.</p>
+      </div>
+    </div>
+  @else
+    {{-- Search Bar --}}
+    <div class="card" style="margin-bottom: 24px;">
+      <div style="padding: 20px;">
+        <form method="GET" action="{{ route('admin.subscriptions.index') }}">
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <div style="flex: 1; position: relative;">
+              <input
+                type="text"
+                name="search"
+                value="{{ search }}"
+                placeholder="Search by customer name or phone..."
+                style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;"
+                onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
+                onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+              >
+              <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 18px; color: #9ca3af;">🔍</span>
+            </div>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              style="padding: 12px 24px; white-space: nowrap;"
+            >
+              Search
+            </button>
+            @if(search)
+              <a
+                href="{{ route('admin.subscriptions.index') }}"
+                class="btn btn-secondary"
+                style="padding: 12px 24px; white-space: nowrap;"
+              >
+                Clear
+              </a>
+            @end
+          </div>
+        </form>
+        @if(search)
+          <div style="margin-top: 12px; color: #6b7280; font-size: 14px;">
+            Showing results for: <strong>"{{ search }}"</strong> ({{ subscriptions.length }} found)
+          </div>
+        @end
+      </div>
+    </div>
+
+    @if(subscriptions.length === 0 && search)
+      <div class="card">
+        <div style="text-align: center; padding: 40px; color: #6b7280;">
+          <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+          <p style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">No results found</p>
+          <p style="font-size: 14px;">Try a different search term</p>
+        </div>
+      </div>
+    @else
+      {{-- Statistics Section --}}
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 24px;">
+        {{-- Total Subscriptions --}}
+        <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border: 2px solid #e5e7eb;">
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div>
+              <div style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">Total Subscriptions</div>
+              <div style="font-size: 28px; font-weight: 700; color: #1f2937;">{{ stats.total }}</div>
+            </div>
+            <div style="font-size: 32px;">📋</div>
+          </div>
+        </div>
+
+        {{-- Active Subscriptions --}}
+        <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div>
+              <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px;">Active Now</div>
+              <div style="font-size: 28px; font-weight: 700;">{{ stats.active }}</div>
+            </div>
+            <div style="font-size: 32px; opacity: 0.8;">✓</div>
+          </div>
+        </div>
+
+        {{-- Total Planned Orders --}}
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div>
+              <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px;">Planned Orders</div>
+              <div style="font-size: 28px; font-weight: 700;">{{ stats.totalOrders }}</div>
+            </div>
+            <div style="font-size: 32px; opacity: 0.8;">📅</div>
+          </div>
+        </div>
+
+        {{-- Expired Subscriptions --}}
+        <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border: 2px solid #e5e7eb;">
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div>
+              <div style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">Expired</div>
+              <div style="font-size: 28px; font-weight: 700; color: #1f2937;">{{ stats.expired }}</div>
+            </div>
+            <div style="font-size: 32px;">⏰</div>
+          </div>
+        </div>
+      </div>
+
+      {{-- Subscriptions List with Accordion --}}
+      @each(subscription in subscriptions)
+        <div class="card" style="margin-bottom: 16px; overflow: hidden;">
+          {{-- Subscription Header - Always Visible --}}
+          <button
+            onclick="toggleSubscription('sub-{{ subscription.id }}')"
+            class="subscription-header"
+            style="width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 20px; cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s;"
+            onmouseover="this.style.background='linear-gradient(135deg, #5568d3 0%, #6b4091 100%)'"
+            onmouseout="this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'"
+          >
+            <div style="display: flex; align-items: center; gap: 16px; flex: 1;">
+              <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 20px; border: 3px solid rgba(255, 255, 255, 0.3);">
+                {{ subscription.user.firstname ? subscription.user.firstname.charAt(0).toUpperCase() : 'U' }}
+              </div>
+              <div style="flex: 1;">
+                <div style="font-weight: 700; font-size: 18px; margin-bottom: 4px;">
+                  {{ subscription.user.firstname }} {{ subscription.user.lastname }}
+                </div>
+                <div style="font-size: 14px; opacity: 0.9;">
+                  {{ subscription.user.phone }}
+                  @if(subscription.user.email)
+                    • {{ subscription.user.email }}
+                  @end
+                  • {{ subscription.package.name }} ({{ subscription.package.kg }} Kg)
+                  • {{ subscription.orders.length }} planned orders
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+              @if(subscription.subscriptionStatus === 'ACTIVE')
+                <span style="background: #d1fae5; color: #065f46; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 13px;">
+                  ✓ ACTIVE
+                </span>
+              @elseif(subscription.subscriptionStatus === 'EXPIRED')
+                <span style="background: #fee2e2; color: #991b1b; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 13px;">
+                  × EXPIRED
+                </span>
+              @else
+                <span style="background: rgba(255, 255, 255, 0.2); color: white; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 13px;">
+                  • PENDING
+                </span>
+              @end
+              <svg id="arrow-sub-{{ subscription.id }}" style="width: 24px; height: 24px; transition: transform 0.3s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </div>
+          </button>
+
+          {{-- Subscription Details - Collapsible --}}
+          <div id="sub-{{ subscription.id }}" style="display: none;">
+            {{-- Subscription Summary --}}
+            <div style="padding: 20px; background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                {{-- Package Info --}}
+                <div>
+                  <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 600; text-transform: uppercase;">Package</div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 24px;">🧺</span>
+                    <div>
+                      <div style="font-weight: 700; font-size: 15px; color: #1f2937;">
+                        {{ subscription.package.name }}
+                      </div>
+                      <div style="font-size: 13px; color: #6b7280;">
+                        {{ subscription.package.kg }} Kg • {{ subscription.package.amount.toLocaleString() }} FCFA
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {{-- Period --}}
+                <div>
+                  <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 600; text-transform: uppercase;">Subscription Period</div>
+                  <div style="font-size: 14px; color: #374151; font-weight: 600;">
+                    @if(subscription.startAt)
+                      {{ new Date(subscription.startAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) }}
+                    @else
+                      N/A
+                    @end
+                    →
+                    @if(subscription.endAt)
+                      {{ new Date(subscription.endAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) }}
+                    @else
+                      N/A
+                    @end
+                  </div>
+                </div>
+
+                {{-- Total Executions --}}
+                <div>
+                  <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 600; text-transform: uppercase;">Total Executions</div>
+                  <div style="font-size: 20px; color: #1f2937; font-weight: 700;">
+                    {{ subscription.totalExecution || 0 }}
+                  </div>
+                </div>
+
+                {{-- Total Cost --}}
+                <div>
+                  <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 600; text-transform: uppercase;">Total Cost</div>
+                  @let(costValue = subscription.totalCost || 0)
+                  @if(costValue < 0)
+                    <div style="font-size: 20px; font-weight: 700; color: #ef4444;">
+                      {{ costValue.toLocaleString() }} FCFA
+                    </div>
+                  @else
+                    <div style="font-size: 20px; font-weight: 700; color: #10b981;">
+                      {{ costValue.toLocaleString() }} FCFA
+                    </div>
+                  @end
+                </div>
+
+                {{-- Margin --}}
+                <div>
+                  <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 600; text-transform: uppercase;">Margin</div>
+                  @let(marginValue = subscription.margin || 0)
+                  @if(marginValue < 0)
+                    <div style="font-size: 20px; font-weight: 700; color: #ef4444;">
+                      {{ marginValue.toLocaleString() }} FCFA
+                    </div>
+                    <div style="font-size: 11px; color: #ef4444; margin-top: 4px; font-weight: 600;">
+                      ⚠️ Loss
+                    </div>
+                  @else
+                    <div style="font-size: 20px; font-weight: 700; color: #10b981;">
+                      {{ marginValue.toLocaleString() }} FCFA
+                    </div>
+                  @end
+                </div>
+              </div>
+            </div>
+
+            {{-- Planned Orders --}}
+            <div style="padding: 20px;">
+              <h3 style="font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 20px;">📅</span>
+                Planned Orders
+                <span style="background: #dbeafe; color: #1e40af; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 700; margin-left: 8px;">
+                  {{ subscription.orders.length }}
+                </span>
+              </h3>
+
+              @if(subscription.orders.length === 0)
+                <div style="text-align: center; padding: 30px; color: #9ca3af; background: #f9fafb; border-radius: 8px; border: 2px dashed #e5e7eb;">
+                  <div style="font-size: 32px; margin-bottom: 8px;">📦</div>
+                  <p style="font-size: 14px; font-weight: 600;">No planned orders</p>
+                </div>
+              @else
+                <div style="overflow-x: auto;">
+                  <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                      <tr style="border-bottom: 2px solid #e5e7eb; background: #f9fafb;">
+                        <th style="padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Order ID</th>
+                        <th style="padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Title</th>
+                        <th style="padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Execution Date</th>
+                        <th style="padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Pickup Hours</th>
+                        <th style="padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Delivery Date</th>
+                        <th style="padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Status</th>
+                        <th style="padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Merchant</th>
+                        <th style="padding: 10px 12px; text-align: right; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Price</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @each(order in subscription.orders)
+                        <tr style="border-bottom: 1px solid #f3f4f6; cursor: pointer; transition: background-color 0.2s;" onclick="window.location.href='{{ route('admin.scheduling.order.details', { id: order.id }) }}'">
+                          <td style="padding: 12px;">
+                            <a href="{{ route('admin.scheduling.order.details', { id: order.id }) }}" style="text-decoration: none;">
+                              <span style="font-family: monospace; font-size: 12px; font-weight: 600; color: #667eea; background: #f3f4f6; padding: 4px 8px; border-radius: 4px; transition: all 0.2s;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#f3f4f6'">
+                                {{ order.orderId }}
+                              </span>
+                            </a>
+                          </td>
+                          <td style="padding: 12px;">
+                            <div style="font-size: 13px; font-weight: 600; color: #1f2937;">
+                              {{ order.orderTitle }}
+                            </div>
+                          </td>
+                          <td style="padding: 12px; font-size: 13px; color: #374151;">
+                            @if(order.executionDate)
+                              {{ new Date(order.executionDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) }}
+                            @else
+                              N/A
+                            @end
+                          </td>
+                          <td style="padding: 12px;">
+                            <div style="font-size: 12px; color: #374151; font-weight: 600; font-family: monospace; background: #fef3c7; color: #92400e; padding: 4px 8px; border-radius: 4px; display: inline-block;">
+                              ⏰ {{ order.pickingHoursFormatted }}
+                            </div>
+                          </td>
+                          <td style="padding: 12px; font-size: 13px; color: #374151;">
+                            @if(order.deliveryDate)
+                              {{ new Date(order.deliveryDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) }}
+                              <div style="font-size: 11px; color: #6b7280; margin-top: 2px;">
+                                {{ new Date(order.deliveryDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }}
+                              </div>
+                            @else
+                              N/A
+                            @end
+                          </td>
+                          <td style="padding: 12px;">
+                            @if(order.status === 'CREATED')
+                              <span style="background: #dbeafe; color: #1e40af; padding: 5px 10px; border-radius: 6px; font-weight: 600; font-size: 11px;">
+                                📝 CREATED
+                              </span>
+                            @elseif(order.status === 'STARTED')
+                              <span style="background: #fef3c7; color: #92400e; padding: 5px 10px; border-radius: 6px; font-weight: 600; font-size: 11px;">
+                                🚀 STARTED
+                              </span>
+                            @elseif(order.status === 'PICKED')
+                              <span style="background: #fce7f3; color: #831843; padding: 5px 10px; border-radius: 6px; font-weight: 600; font-size: 11px;">
+                                📦 PICKED
+                              </span>
+                            @elseif(order.status === 'WASHING')
+                              <span style="background: #e0e7ff; color: #3730a3; padding: 5px 10px; border-radius: 6px; font-weight: 600; font-size: 11px;">
+                                🧼 WASHING
+                              </span>
+                            @elseif(order.status === 'READY')
+                              <span style="background: #d1fae5; color: #065f46; padding: 5px 10px; border-radius: 6px; font-weight: 600; font-size: 11px;">
+                                ✓ READY
+                              </span>
+                            @elseif(order.status === 'DELIVERED')
+                              <span style="background: #d1fae5; color: #065f46; padding: 5px 10px; border-radius: 6px; font-weight: 600; font-size: 11px;">
+                                ✓ DELIVERED
+                              </span>
+                            @else
+                              <span style="background: #f3f4f6; color: #6b7280; padding: 5px 10px; border-radius: 6px; font-weight: 600; font-size: 11px;">
+                                {{ order.status }}
+                              </span>
+                            @end
+                          </td>
+                          <td style="padding: 12px; font-size: 13px; color: #374151;">
+                            @if(order.merchant)
+                              <div style="font-weight: 600;">{{ order.merchant.name }}</div>
+                            @else
+                              <span style="color: #9ca3af;">Unassigned</span>
+                            @end
+                          </td>
+                          <td style="padding: 12px; text-align: right;">
+                            <div style="font-size: 14px; font-weight: 700; color: #10b981;">
+                              {{ order.customerOrderFinalPrice ? order.customerOrderFinalPrice.toLocaleString() : '0' }} FCFA
+                            </div>
+                          </td>
+                        </tr>
+                      @end
+                    </tbody>
+                  </table>
+                </div>
+              @end
+            </div>
+          </div>
+        </div>
+      @end
+    @end
+  @end
+
+  <script>
+    function toggleSubscription(id) {
+      const element = document.getElementById(id);
+      const arrow = document.getElementById('arrow-' + id);
+
+      if (element.style.display === 'none' || element.style.display === '') {
+        element.style.display = 'block';
+        arrow.style.transform = 'rotate(180deg)';
+      } else {
+        element.style.display = 'none';
+        arrow.style.transform = 'rotate(0deg)';
+      }
+    }
+
+    // Optional: Expand first subscription by default if there's only one
+    document.addEventListener('DOMContentLoaded', function() {
+      const subscriptions = document.querySelectorAll('[id^="sub-"]');
+      if (subscriptions.length === 1) {
+        subscriptions[0].style.display = 'block';
+        const arrow = document.querySelector('[id^="arrow-sub-"]');
+        if (arrow) arrow.style.transform = 'rotate(180deg)';
+      }
+    });
+  </script>
+
+  <style>
+    table tr:hover {
+      background-color: #f9fafb;
+    }
+
+    .subscription-header:focus {
+      outline: 2px solid #667eea;
+      outline-offset: 2px;
+    }
+  </style>
+@end
+@end

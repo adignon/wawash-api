@@ -1,0 +1,319 @@
+@layout.admin({ title: 'Order #' + order.orderId, pageTitle: 'Order Details' })
+
+@slot('topbarActions')
+  <a href="{{ route('admin.scheduling.calendar') }}" class="btn btn-secondary">
+    <span>←</span>
+    <span>Back</span>
+  </a>
+@end
+
+@slot('main')
+  <style>
+    .order-detail-container {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 24px;
+    }
+    .order-sidebar {
+      position: sticky;
+      top: 20px;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-bottom: 20px;
+      scrollbar-width: thin;
+      scrollbar-color: #9ca3af #f3f4f6;
+    }
+    .order-sidebar::-webkit-scrollbar {
+      width: 8px;
+    }
+    .order-sidebar::-webkit-scrollbar-track {
+      background: #f3f4f6;
+      border-radius: 4px;
+      margin: 4px 0;
+    }
+    .order-sidebar::-webkit-scrollbar-thumb {
+      background: #9ca3af;
+      border-radius: 4px;
+      border: 2px solid #f3f4f6;
+    }
+    .order-sidebar::-webkit-scrollbar-thumb:hover {
+      background: #6b7280;
+    }
+    .info-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .info-row:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .info-row-label {
+      font-size: 13px;
+      color: #6b7280;
+      font-weight: 500;
+    }
+    .info-row-value {
+      font-size: 14px;
+      color: #1f2937;
+      font-weight: 600;
+    }
+    .status-badge-large {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .status-CREATED { background: #dbeafe; color: #1e40af; }
+    .status-STARTED { background: #fef3c7; color: #92400e; }
+    .status-PICKED { background: #e0e7ff; color: #4338ca; }
+    .status-WASHING { background: #e0e7ff; color: #4338ca; }
+    .status-READY { background: #d1fae5; color: #065f46; }
+    .status-DELIVERED { background: #d1fae5; color: #065f46; }
+    .order-header-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    .order-id-hero {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    .address-box {
+      background: #f9fafb;
+      padding: 16px;
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+      margin-bottom: 12px;
+    }
+    .address-box:last-child {
+      margin-bottom: 0;
+    }
+  </style>
+
+  <div class="order-detail-container">
+    {{-- Sidebar --}}
+    <div class="order-sidebar">
+      <div class="order-header-box">
+        <div class="order-id-hero">#{{ order.orderId }}</div>
+        <div style="font-size: 14px; opacity: 0.9;">Order ID: {{ order.id }}</div>
+      </div>
+
+      <div class="info-card">
+        <div class="card-title">📋 Order Information</div>
+        <div class="info-row">
+          <span class="info-row-label">Status</span>
+          <span class="status-badge-large status-{{ order.status }}">{{ order.status }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-row-label">Type</span>
+          <span class="info-row-value">{{ order.orderType }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-row-label">Delivery Date</span>
+          <span class="info-row-value">{{ order.deliveryDate.toFormat('dd MMM yyyy') }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-row-label">Delivery Time</span>
+          <span class="info-row-value">{{ order.deliveryDate.toFormat('HH:mm') }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-row-label">Execution Date</span>
+          <span class="info-row-value">{{ order.executionDate.toFormat('dd MMM yyyy') }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-row-label">Picking Time</span>
+          <span class="info-row-value" style="color: #667eea; font-weight: 700;">
+            @if(order.pickingHours && order.pickingHours.length >= 2)
+              ⏰ {{ order.pickingHours[0] }} - {{ order.pickingHours[1] }}
+            @else
+              N/A
+            @end
+          </span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="card-title">💰 Pricing</div>
+        <div class="info-row">
+          <span class="info-row-label">Weight</span>
+          <span class="info-row-value">{{ order.userKg || order.capacityKg || 'N/A' }} kg</span>
+        </div>
+        <div class="info-row">
+          <span class="info-row-label">Initial Price</span>
+          <span class="info-row-value">{{ order.customerOrderInitialPrice }} FCFA</span>
+        </div>
+        <div class="info-row">
+          <span class="info-row-label">Final Price</span>
+          <span class="info-row-value">{{ order.customerOrderFinalPrice }} FCFA</span>
+        </div>
+        <div class="info-row">
+          <span class="info-row-label">Delivery Cost</span>
+          <span class="info-row-value">{{ order.deliveryCost }} FCFA</span>
+        </div>
+      </div>
+    </div>
+
+    {{-- Main Content --}}
+    <div>
+      <div class="info-card">
+        <div class="card-title">👤 Customer Details</div>
+        <div class="section-grid">
+          <div class="info-row">
+            <span class="info-row-label">Name</span>
+            <span class="info-row-value">{{ order.user?.firstname || '' }} {{ order.user?.lastname || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-row-label">Phone</span>
+            <span class="info-row-value">{{ order.user?.phone || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-row-label">Email</span>
+            <span class="info-row-value">{{ order.user?.email || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-row-label">Role</span>
+            <span class="info-row-value">{{ order.user?.role || 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+
+      @if(userAddress)
+        <div class="info-card">
+          <div class="card-title">📍 Pickup/Delivery Address</div>
+          <div class="address-box">
+            <div style="font-weight: 600; color: #1f2937; margin-bottom: 8px;">{{ userAddress.quartier || 'N/A' }}</div>
+            <div style="color: #6b7280; font-size: 14px; margin-bottom: 4px;">
+              {{ userAddress.commune || '' }}{{ userAddress.arrondissement ? ', ' + userAddress.arrondissement : '' }}
+            </div>
+            <div style="color: #6b7280; font-size: 13px; margin-bottom: 4px;">
+              Contact: {{ userAddress.contactFullname || 'N/A' }} - {{ userAddress.contactPhone || 'N/A' }}
+            </div>
+            @if(userAddress.description)
+              <div style="color: #9ca3af; font-size: 13px; font-style: italic;">{{ userAddress.description }}</div>
+            @end
+          </div>
+        </div>
+      @end
+
+      <div class="info-card">
+        <div class="card-title">📦 Package Details</div>
+        <div class="info-row">
+          <span class="info-row-label">Package</span>
+          <span class="info-row-value">{{ order.orderTitle }}</span>
+        </div>
+        @if(order.package)
+          <div class="info-row">
+            <span class="info-row-label">Package Name</span>
+            <span class="info-row-value">{{ order.package.name }}</span>
+          </div>
+        @end
+        <div class="info-row">
+          <span class="info-row-label">Delivery Type</span>
+          <span class="info-row-value">{{ order.deliveryType }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-row-label">Picking Time</span>
+          @if(order.pickingHours && order.pickingHours.length > 0)
+            <span class="info-row-value" style="color: #667eea; display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 18px;">⏰</span>
+              <span>{{ order.pickingHours[0] }}</span>
+            </span>
+          @else
+            <span class="info-row-value" style="color: #9ca3af;">Not set</span>
+          @end
+        </div>
+      </div>
+
+      @if(order.merchant)
+        <div class="info-card">
+          <div class="card-title">🧹 Merchant Details</div>
+          <div class="info-row">
+            <span class="info-row-label">Name</span>
+            <span class="info-row-value">{{ order.merchant.name }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-row-label">Washing Type</span>
+            <span class="info-row-value">{{ order.merchant.washingType }}</span>
+          </div>
+          @if(order.merchant.phones && order.merchant.phones.length > 0)
+            <div class="info-row">
+              <span class="info-row-label">Phone</span>
+              <span class="info-row-value">{{ order.merchant.phones[0] }}</span>
+            </div>
+          @end
+
+          @if(merchantAddresses && merchantAddresses.length > 0)
+            <div style="margin-top: 16px;">
+              <div style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 12px;">Store Locations</div>
+              @each(address in merchantAddresses)
+                <div class="address-box">
+                  <div style="font-weight: 600; color: #1f2937; margin-bottom: 8px;">{{ address.quartier || 'N/A' }}</div>
+                  <div style="color: #6b7280; font-size: 14px; margin-bottom: 4px;">
+                    {{ address.commune || '' }}{{ address.arrondissement ? ', ' + address.arrondissement : '' }}
+                  </div>
+                  @if(address.description)
+                    <div style="color: #9ca3af; font-size: 13px; font-style: italic;">{{ address.description }}</div>
+                  @end
+                </div>
+              @end
+            </div>
+          @end
+        </div>
+      @else
+        <div class="info-card">
+          <div class="card-title">🧹 Merchant Details</div>
+          <div style="text-align: center; padding: 40px; color: #9ca3af;">
+            <div style="font-size: 48px; margin-bottom: 12px;">⚠️</div>
+            <div style="font-size: 16px;">No merchant assigned yet</div>
+            <div style="font-size: 14px; margin-top: 8px;">
+              <a href="{{ route('admin.delivery.assignments') }}" style="color: #667eea; text-decoration: underline;">Assign a merchant</a>
+            </div>
+          </div>
+        </div>
+      @end
+
+      @if(addons && Object.keys(addons).length > 0)
+        <div class="info-card">
+          <div class="card-title">➕ Add-ons</div>
+          @each(addonName in Object.keys(addons))
+            @let(addonData = addons[addonName])
+            <div class="info-row">
+              <span class="info-row-label">{{ addonName }}</span>
+              <span class="info-row-value">{{ addonData.totalCost || 0 }} FCFA ({{ addonData.unitCost || 0 }} FCFA/unit)</span>
+            </div>
+          @end
+        </div>
+      @end
+    </div>
+  </div>
+@end
+@end

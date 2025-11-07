@@ -1,0 +1,126 @@
+@layout.admin({ title: 'Message de ' + contact.name, pageTitle: 'Détail du Message' })
+
+@slot('topbarActions')
+  <a href="{{ route('admin.contacts.index') }}" class="btn btn-secondary">
+    <span>←</span>
+    <span>Retour</span>
+  </a>
+@end
+
+@slot('main')
+  <style>
+    .info-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .info-row {
+      display: flex;
+      padding: 12px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      width: 140px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6b7280;
+    }
+    .info-value {
+      flex: 1;
+      font-size: 14px;
+      color: #1f2937;
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .badge-unread {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .badge-read {
+      background: #d1fae5;
+      color: #065f46;
+    }
+  </style>
+
+  <div class="info-card">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #e5e7eb;">
+      <h2 style="font-size: 20px; font-weight: 700; color: #1f2937; margin: 0;">
+        📧 Message de Contact
+      </h2>
+      <span class="badge {{ contact.isRead ? 'badge-read' : 'badge-unread' }}">
+        {{ contact.isRead ? '✓ Lu' : '• Non lu' }}
+      </span>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">Nom complet</div>
+      <div class="info-value" style="font-weight: 600;">{{ contact.name }}</div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">Email</div>
+      <div class="info-value">
+        <a href="mailto:{{ contact.email }}" style="color: #667eea; text-decoration: none; font-weight: 600;">
+          {{ contact.email }}
+        </a>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">Date de réception</div>
+      <div class="info-value">{{ contact.createdAt.toFormat('dd MMMM yyyy à HH:mm', { locale: 'fr' }) }}</div>
+    </div>
+
+    @if(contact.readAt)
+      <div class="info-row">
+        <div class="info-label">Lu le</div>
+        <div class="info-value">{{ contact.readAt.toFormat('dd MMMM yyyy à HH:mm', { locale: 'fr' }) }}</div>
+      </div>
+    @end
+  </div>
+
+  <div class="info-card">
+    <h3 style="font-size: 16px; font-weight: 700; color: #1f2937; margin: 0 0 16px 0;">💬 Message</h3>
+    <div style="background: #f9fafb; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea;">
+      <p style="color: #374151; font-size: 14px; line-height: 1.8; margin: 0; white-space: pre-wrap;">{{ contact.message }}</p>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <h3 style="font-size: 16px; font-weight: 700; color: #1f2937; margin: 0 0 16px 0;">⚡ Actions</h3>
+
+    <div style="display: flex; gap: 12px;">
+      <a href="mailto:{{ contact.email }}?subject=Re: Votre message sur WaWash"
+         style="padding: 12px 24px; background: #667eea; color: white; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+        <span>✉️</span>
+        <span>Répondre par email</span>
+      </a>
+
+      <form action="{{ route('admin.contacts.toggle-read', { id: contact.id }) }}" method="POST" style="display: inline;">
+        {{ csrfField() }}
+        <button type="submit" style="padding: 12px 24px; background: #f3f4f6; color: #374151; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">
+          {{ contact.isRead ? 'Marquer comme non lu' : 'Marquer comme lu' }}
+        </button>
+      </form>
+
+      <form action="{{ route('admin.contacts.delete', { id: contact.id }) }}" method="POST" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce message ? Cette action est irréversible.');">
+        {{ csrfField() }}
+        <input type="hidden" name="_method" value="DELETE" />
+        <button type="submit" style="padding: 12px 24px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">
+          🗑️ Supprimer
+        </button>
+      </form>
+    </div>
+  </div>
+@end
+@end

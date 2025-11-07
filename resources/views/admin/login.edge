@@ -1,0 +1,77 @@
+@layout.auth({ title: 'Admin Login' })
+  @slot('main')
+    <div class="auth-card">
+      <div class="logo-container">
+        <div class="logo">🧺</div>
+        <h1 class="logo-text">WaWash</h1>
+        <p class="logo-subtitle">Administration Panel</p>
+      </div>
+
+      @flashMessage('error')
+        <div class="alert alert-error">
+          {{ $message }}
+        </div>
+      @end
+
+      @flashMessage('success')
+        <div class="alert alert-success">
+          {{ $message }}
+        </div>
+      @end
+
+      <form action="{{ route('admin.login.post') }}" method="POST" id="loginForm">
+        {{ csrfField() }}
+
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="form-input"
+            placeholder="admin@wawash.com"
+            value="{{ old('email') || '' }}"
+            required
+            autocomplete="email"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-input"
+            placeholder="••••••••"
+            required
+            autocomplete="current-password"
+          >
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+          <span id="btnText">Sign In</span>
+          <span id="btnSpinner" class="spinner" style="display: none;"></span>
+        </button>
+      </form>
+
+      <p class="footer-text">
+        WaWash &copy; {{ new Date().getFullYear() }} - All rights reserved
+      </p>
+    </div>
+  @end
+
+  @slot('scripts')
+    <script>
+      document.getElementById('loginForm').addEventListener('submit', function() {
+        const btn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+
+        btn.disabled = true;
+        btnText.style.display = 'none';
+        btnSpinner.style.display = 'block';
+      });
+    </script>
+  @end
+@end
