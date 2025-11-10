@@ -249,7 +249,6 @@ export default class OrdersController {
                     userId: order.userId,
                     paymentAccountId: paymentMethodAccount.id
                 }
-                console.log(invoice)
                 if (!isPreview) {
                     invoice = await Invoice.updateOrCreate({
                         userId: order.userId,
