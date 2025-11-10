@@ -13,7 +13,7 @@ export default class extends BaseSchema {
       table.string("meta").nullable()
       table.dateTime("paid_at").nullable()
       table.integer("payment_account_id").unsigned().references("id").inTable("payment_accounts").notNullable()
-      table.enum("status",["CREATED","PENDING","SUCCESS","FAILED"]).notNullable()
+      table.enum("status",["CREATED","PENDING","SUCCESS","FAILED","CANCELED"]).notNullable()
       table.integer("user_id").unsigned().references("id").inTable("users")
       table.timestamp('created_at')
       table.timestamp('updated_at')

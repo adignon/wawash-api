@@ -90,6 +90,7 @@ export default class SubscriptionsController {
         }
         let isQuerySaved = false
         const tx = await db.transaction()
+         
         try {
             let oldCommand: Command | null = null
             if (oldCommand = await this.getUserActiveSubscription(auth.user!.id)) {
@@ -101,6 +102,7 @@ export default class SubscriptionsController {
                     })
                 }
             }
+            const COUNT_WEEK=4;
             const description = [pack!.name]
             // Get configured cost
             const merchantKgPrice = await Config.findByOrFail("key", "SERVICE_MERCHANT_COST_PER_KG")
@@ -112,10 +114,10 @@ export default class SubscriptionsController {
             const repassageAddon = data.dryingAddon ? await ServiceAddon.query().where("code", "REPASSAGE").first() : null
             const multiplePicking = data.weekDayPicking.length > 1 ? await ServiceAddon.query().where("code", "PICKING_MULTIPLE").first() : null
 
-            shippingPrice = Decimal(shippingAddon!.price).mul(pack!.kg).mul(4);
+            shippingPrice = Decimal(shippingAddon!.price).mul(pack!.kg).mul(COUNT_WEEK);
 
             if (repassageAddon) {
-                repassagePrice = Decimal(repassageAddon!.price).mul(pack!.kg).mul(4)
+                repassagePrice = Decimal(repassageAddon!.price).mul(pack!.kg).mul(COUNT_WEEK)
                 merchantDryingCost = Number(repassageAddon!.value.merchantCost)
                 description.push("avec repassage inclus")
             }
@@ -127,14 +129,14 @@ export default class SubscriptionsController {
                 }
             }
             if (multiplePicking && (len = data.weekDayPicking.slice(pack!.paidMultiplePickMin).length)) {
-                multiplePickingPrice = Decimal(multiplePicking!.price).mul(len).mul(4).toNumber()
+                multiplePickingPrice = Decimal(multiplePicking!.price).mul(len).mul(COUNT_WEEK).toNumber()
             }
-            const total = Decimal(pack!.amount).mul(4).add(shippingPrice).add(repassagePrice).add(multiplePickingPrice).toString()
-            const orderMinPrice = Decimal(total).sub(multiplePickingPrice).div(4).toNumber()
+            const total = Decimal(pack!.amount).mul(COUNT_WEEK).add(shippingPrice).add(repassagePrice).add(multiplePickingPrice).toString()
+            const orderMinPrice = Decimal(total).sub(multiplePickingPrice).div(COUNT_WEEK).toNumber()
 
             const merchantKgUnitCost = Decimal(merchantKgPrice.value).add(shippingAddon!.value.merchantCost).add(merchantDryingCost).toNumber()
-            let merchantKgTotalCost = Decimal(merchantKgUnitCost).mul(pack!.kg).mul(4).toNumber()
-            let deliveryCost = Decimal(deliveryPrice.value).mul(data.weekDayPicking.length).mul(4).toNumber();
+            let merchantKgTotalCost = Decimal(merchantKgUnitCost).mul(pack!.kg).mul(COUNT_WEEK).toNumber()
+            let deliveryCost = Decimal(deliveryPrice.value).mul(data.weekDayPicking.length).mul(COUNT_WEEK).toNumber();
             const margin= Decimal(total).minus(merchantKgTotalCost).minus(deliveryCost).toNumber()
             if(Decimal(margin).lte(0)){
                 throw new Error("Margin is negative for subscription")
@@ -155,7 +157,7 @@ export default class SubscriptionsController {
             // 2. Create Command
             let command = await Command.create({
                 userId: auth.user!.id,
-                commandKg:pack!.kg,
+                commandKg:Decimal(pack!.kg).mul(COUNT_WEEK).toNumber(),
                 commandDescription: description.join(" "),
                 commandType: pack!.isSubscriptable ? "SUBSCRIPTION" : "COMMAND",
                 packageId: pack!.id,

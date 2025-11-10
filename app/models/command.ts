@@ -61,7 +61,7 @@ export default class Command extends BaseModel {
     if(this.commandSpentKg && this.commandKg){
       return this.commandKg-this.commandSpentKg
     }
-    return null;
+    return this.commandKg;
   }
 
   @column.dateTime()

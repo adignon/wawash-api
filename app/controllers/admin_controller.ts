@@ -264,7 +264,7 @@ export default class AdminController {
       const totalOrders = await Order.query().count('* as total')
       const totalUsers = await User.query().where('role', 'USER').count('* as total')
       const totalMerchants = await Merchant.query().count('* as total')
-      const activeMerchants = await Merchant.query().where('status', 'ACTIVE').count('* as total')
+      const activeMerchants = await Merchant.query().count('* as total')
 
       // Get order statistics
       const pendingOrders = await Order.query().where('status', 'CREATED').count('* as total')
@@ -274,13 +274,12 @@ export default class AdminController {
       // Get active subscriptions
       const activeSubscriptions = await Command.query()
         .where('commandType', 'SUBSCRIPTION')
-        .where('status', 'ACTIVE')
         .count('* as total')
 
       // Calculate total revenue (sum of successful payments)
       const revenueResult = await Payment.query()
         .whereIn('status', ['SUCCESS', 'COMPLETED'])
-        .sum('amount as total')
+        .sum('ask_amount as total')
 
       const totalRevenue = revenueResult[0]?.$extras?.total || 0
 
@@ -313,6 +312,7 @@ export default class AdminController {
         recentPayments,
       })
     } catch (error) {
+      console.log(error)
       logger.error("Failed to load dashboard statistics", error)
       return view.render('admin/dashboard', {
         stats: {
@@ -722,7 +722,7 @@ export default class AdminController {
         const orders = await Order.query()
           .where('commandId', subscription.id)
           .where('orderType', 'SUBSCRIPTION')
-          .whereIn('status', ['CREATED', 'STARTED', 'PICKED', 'WASHING', 'READY'])
+          .whereIn('status', ['CREATED', 'STARTED', 'PICKED', 'WASHING', 'READY', 'DELIVERED'])
           .orderBy('executionDate', 'asc')
 
         // Manually load merchant for orders that have merchantId and parse hours
@@ -810,7 +810,6 @@ export default class AdminController {
     const Merchant = (await import('#models/merchant')).default
 
     const orders = await Order.query()
-      .whereIn('status', ['CREATED', 'WASHING', 'READY'])
       .preload('user')
       .preload('package')
       .orderBy('executionDate', 'asc')

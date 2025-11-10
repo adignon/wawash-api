@@ -180,16 +180,16 @@ export default class OrdersController {
             let payForKg = data.kg
             if (order.commandId && (command = await Command.query({ client: tx }).where("id", order.commandId).forUpdate().first())) {
                 command.commandSpentKg = Decimal(command.commandSpentKg).add(data.kg).toNumber()
-                payForKg = command.remainingKg ?? 0
+                payForKg = Decimal(command.commandKg).minus(command.commandSpentKg).toNumber()
+                payForKg = payForKg > 0 ? 0 : Decimal.abs(payForKg).toNumber()
             }
-
             order.userKg = data.kg
             order.merchantTotalCost = Decimal(order.merchantKgCost!).mul(data.kg).toNumber()
             order.customerOrderFinalPrice = Decimal(order.customerOrderKgPrice!).mul(data.kg).add(order.commandId ? 0 : order.deliveryCost).toNumber()
-            order.customerFeesToPay = Decimal(payForKg).gt(order.capacityKg) ? Decimal(order.customerOrderFinalPrice).minus(order.customerOrderInitialPrice).toNumber() : 0
+            order.customerFeesToPay = Decimal(payForKg).mul(order.customerOrderKgPrice).toNumber()
             order.totalCost = Decimal(order.deliveryCost).add(order.merchantTotalCost).toNumber()
             order.margin = Decimal(order.customerOrderFinalPrice).minus(order.totalCost).toNumber()
-            
+            console.log(order.customerFeesToPay)
             if (!isPreview) {
                 order.merchantId = auth.user!.merchantId!
                 order.status = "WASHING"
@@ -203,7 +203,7 @@ export default class OrdersController {
                 order.addons = JSON.stringify(initials) as any
             }
             let margin = 0
-            if (order.customerFeesToPay > 0 && payForKg > 0 && !isPreview && tx) {
+            if (order.customerFeesToPay > 0 && payForKg > 0) {
                 const additionnalKg = Decimal(payForKg)
                 if (order.commandId && additionnalKg.lte(0)) {
                     throw new Error("Aucun surpoids détecté.")
@@ -215,20 +215,32 @@ export default class OrdersController {
                     throw new Error("Les frais de surpoids ne couvrent pas les coûts additionnels.")
                 }
                 const paymentMethodAccount = await PaymentAccount.query().andWhere("isDefault", 1).andWhere("country", "BJ").firstOrFail()
-                const lastInvoice = await Invoice.findBy({
+                const lastInvoices = await Invoice.query({
+                    client:tx
+                }).sum("amount as total").where({
                     userId: order.userId,
                     meta: "order-" + order.id,
                     status: "SUCCESS",
-                })
-                let amount = order.customerFeesToPay
-                if (lastInvoice && Decimal(order.customerFeesToPay).gt(lastInvoice.amount)) {
-                    amount = Decimal(order.customerFeesToPay).minus(lastInvoice.amount).toNumber()
-                    amount = Decimal(order.customerFeesToPay).minus(lastInvoice.amount).toNumber()
+                }).first()
+                // Cancel last generated and non paid invoices
+                if (!isPreview) {
+                    await Invoice.query({
+                        client:tx
+                    }).where({
+                        userId: order.userId,
+                        meta: "order-" + order.id,
+                        status: "PENDING",
+                    }).update({
+                        "status": "CANCELED"
+                    })
                 }
-                const invoice = await Invoice.updateOrCreate({
-                    userId: order.userId,
-                    meta: "order-" + order.id
-                }, {
+                lastInvoices?.$extras.total
+                let amount = order.customerFeesToPay
+                if (lastInvoices?.$extras.total && Decimal(order.customerFeesToPay).gt(lastInvoices?.$extras.total)) {
+                    amount = Decimal(order.customerFeesToPay).minus(lastInvoices?.$extras.total).toNumber()
+                    amount = Decimal(order.customerFeesToPay).minus(lastInvoices?.$extras.total).toNumber()
+                }
+                let invoice: any = {
                     meta: "order-" + order.id,
                     amount: amount.toString(),
                     invoiceType: order.commandId ? "SUBSCRIPTION_OVERWEIGHT" : "COMMAND_LAUNDRY",
@@ -236,10 +248,19 @@ export default class OrdersController {
                     margin: margin,
                     userId: order.userId,
                     paymentAccountId: paymentMethodAccount.id
-                }, {
-                    client: tx
-                })
-                order.invoiceId = invoice.id
+                }
+                console.log(invoice)
+                if (!isPreview) {
+                    invoice = await Invoice.updateOrCreate({
+                        userId: order.userId,
+                        meta: "order-" + order.id
+                    }, invoice, {
+                        client: tx
+                    })
+                    order.invoiceId = invoice.id
+                }
+
+
             }
             if (!isPreview && tx) {
                 await order.useTransaction(tx).save()
